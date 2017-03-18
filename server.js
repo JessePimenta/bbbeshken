@@ -5,9 +5,11 @@ budo('./src/index.js', {
   live: true,             // setup live reload
   port: 7000,             // use this port
   browserify: {
-    transform: babelify.configure({
-      presets: ["es2015"]
-    })  // ES6
+    transform: [
+      babelify.configure({
+        presets: ['es2015']
+      })
+    ]  // ES6
   }
 }).on('connect', function (ev) {
   console.log('Server running on %s', ev.uri)
