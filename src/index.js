@@ -121,18 +121,13 @@ void main()
 `
 
 let bufferScene;
-let bufferScene2;
 let textureA;
 let textureB;
-let textureC;
 let bufferMaterial;
-let bufferMaterial2;
 let plane;
 let bufferObject;
 let finalMaterial;
-let finalfinalMaterial;
 let quad;
-let quad2;
 let uniforms;
 
 function bufferTextureSetup(image){
