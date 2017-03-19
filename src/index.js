@@ -138,12 +138,10 @@ let uniforms;
 function bufferTextureSetup(image){
   //Create buffer scene
   bufferScene = new THREE.Scene();
-  bufferScene2 = new THREE.Scene();
 
   //Create 2 buffer textures
   textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
   textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} );
-  textureC = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} );
 
   // let imageTexture = THREE.ImageUtils.loadTexture( "./src/images/ali_knockout.jpg" );
   // imageTexture.wrapS = THREE.RepeatWrapping;
@@ -166,7 +164,11 @@ function bufferTextureSetup(image){
     vertexShader: vertexShader
   } );
 
-  bufferMaterial2 = new THREE.ShaderMaterial( {
+  plane = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight );
+  bufferObject = new THREE.Mesh( plane, bufferMaterial );
+  bufferScene.add(bufferObject);
+
+  finalMaterial = new THREE.ShaderMaterial( {
     uniforms: {
       imageTexture: {type: "t", value: imageTexture.texture},
       resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
@@ -176,16 +178,9 @@ function bufferTextureSetup(image){
     vertexShader: vertexShader
   } );
 
-  plane = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight );
-  bufferObject = new THREE.Mesh( plane, bufferMaterial );
-  bufferScene.add(bufferObject);
-
   //Draw textureB to screen
-  quad = new THREE.Mesh( plane, bufferMaterial );
-  bufferScene2.add(quad);
-
-  quad2 = new THREE.Mesh( plane, bufferMaterial2 );
-  scene.add(quad2);
+  quad = new THREE.Mesh( plane, finalMaterial);
+  scene.add(quad);
 }
 
 function update () {
@@ -203,8 +198,6 @@ function update () {
   uniforms.frame.value += 1;
   uniforms.time.value += clock.getDelta();;
   uniforms.mouse.value = mouse;
-
-  renderer.render(bufferScene2,camera,textureC,true);
 
   //Finally, draw to the screen
   renderer.render( scene, camera );
