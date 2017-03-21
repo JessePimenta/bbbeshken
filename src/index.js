@@ -107,14 +107,11 @@ let fragmentShader = glsl`
       gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);
     } else {
       // UVs start at 0.0 and move from -1 to 1
-      uv *= 0.995;
-      uv.y += 0.001;
+      uv *= 0.998;
+      // uv.y += 0.001;
       vec3 r = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;
 
-      // r += 0.001;
-      // r.r += r.g*0.001;
-      // r.g += r.b*0.001;
-      // r.b += r.r*0.001;
+      r += 0.0001;
       r.r += (max(r.g*0.001, 0.0001));
       r.g += (max(r.b*0.001, 0.0001));
       r.b += (max(r.r*0.001, 0.0001));
@@ -139,11 +136,49 @@ let fragmentShader2 = glsl`
       vec4 bufferPixel = texture2D(bufferTexture, uv);
       vec4 imagePixel = texture2D(imageTexture, uv);
       gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);
+      // gl_FragColor = bufferPixel;
   }
 `
 
-let gaussianBlurHorizontalPass = glsl`
+let gaussianBlur = glsl`
+  uniform vec2 resolution;
+  uniform sampler2D bufferTexture;
 
+  float normpdf(in float x, in float sigma) {
+  	return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
+  }
+
+  void main() {
+    //declare stuff
+    const int mSize = 11;
+    const int kSize = (mSize-1)/2;
+    float kernel[mSize];
+    vec3 finalColor = vec3(0.0);
+
+    //create the 1-D kernel
+    float sigma = 7.0;
+    float Z = 0.0;
+    for (int j = 0; j <= kSize; ++j)
+    {
+      kernel[kSize+j] = kernel[kSize-j] = normpdf(float(j), sigma);
+    }
+
+    //get the normalization factor (as the gaussian has been clamped)
+    for (int j = 0; j < mSize; ++j)
+    {
+      Z += kernel[j];
+    }
+
+    //read out the texels
+    for (int i=-kSize; i <= kSize; ++i)
+    {
+      for (int j=-kSize; j <= kSize; ++j)
+      {
+        finalColor += kernel[kSize+j]*kernel[kSize+i]*texture2D(bufferTexture, (gl_FragCoord.xy+vec2(float(i),float(j))) / resolution.xy).rgb;
+      }
+    }
+    gl_FragColor = vec4(finalColor/(Z*Z), 1.0);
+  }
 `
 
 let vertexShader = glsl`
@@ -159,11 +194,15 @@ void main()
 `
 
 let bufferScene;
+let bufferScene2;
 let textureA;
 let textureB;
+let textureC;
 let bufferMaterial;
+let bufferMaterial2;
 let plane;
 let bufferObject;
+let bufferObject2;
 let finalMaterial;
 let quad;
 let uniforms;
@@ -171,12 +210,15 @@ let uniforms;
 function bufferTextureSetup(image){
   //Create buffer scene
   bufferScene = new THREE.Scene();
+  bufferScene2= new THREE.Scene();
 
   //Create 2 buffer textures
   textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
   textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+  textureC = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
   textureA.type = THREE.FloatType;
   textureB.type = THREE.FloatType;
+  textureC.type = THREE.FloatType;
 
   // let imageTexture = THREE.ImageUtils.loadTexture( "./src/images/ali_knockout.jpg" );
   // imageTexture.wrapS = THREE.RepeatWrapping;
@@ -203,17 +245,27 @@ function bufferTextureSetup(image){
   bufferObject = new THREE.Mesh( plane, bufferMaterial );
   bufferScene.add(bufferObject);
 
+  bufferMaterial2 = new THREE.ShaderMaterial( {
+    uniforms: {
+      bufferTexture: { type: "t", value: textureB.texture },
+      resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) }
+    },
+    fragmentShader: gaussianBlur,
+    vertexShader: vertexShader
+  } );
+  bufferObject2 = new THREE.Mesh(plane, bufferMaterial2);
+  bufferScene2.add(bufferObject2)
+
   finalMaterial = new THREE.ShaderMaterial( {
     uniforms: {
       imageTexture: {type: "t", value: imageTexture},
       resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
-      bufferTexture: {type: "t", value: textureA},
+      bufferTexture: {type: "t", value: textureC},
       frame: {type: "i", value: 0}
     },
     fragmentShader: fragmentShader2,
     vertexShader: vertexShader
   } );
-
   //Draw textureB to screen
   quad = new THREE.Mesh( plane, finalMaterial);
   scene.add(quad);
@@ -237,6 +289,7 @@ function update () {
   bufferMaterial.uniforms.mouse.value = mouse;
   finalMaterial.uniforms.frame.value += 1;
 
+  renderer.render(bufferScene2, camera, textureC, true);
   //Finally, draw to the screen
   renderer.render( scene, camera );
 
