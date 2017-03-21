@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "domready": "^1.0.8",
+    "soundcloud": "^3.1.2",
     "three": "^0.84.0"
   }
 }
