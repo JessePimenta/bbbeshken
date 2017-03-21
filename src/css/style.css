@@ -6,3 +6,21 @@ html, body {
 canvas {
   display: block;
 }
+
+.player-controls {
+  z-index: 100;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+}
+
+.player-controls div {
+  float: right;
+  margin-left: 20px;
+}
+
+.player-controls i {
+  font-size: 24px;
+  color: #FFF;
+}

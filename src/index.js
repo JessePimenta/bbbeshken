@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import glsl from 'glslify';
 import domready from 'domready';
+import SCPlayer from './scPlayer.js';
 
 let scene;
 let camera;
@@ -8,8 +9,25 @@ let renderSize;
 let renderer;
 let clock;
 let mouse;
+let images;
+let scPlayer;
 
 function sceneSetup(){
+
+  let imageFiles = [
+    'src/images/album/0. Album Art*.jpg',
+    'src/images/album/1. Intro*.jpg',
+    'src/images/album/2. The Roman Call.jpg',
+    'src/images/album/2.5 Interlude*.jpg'
+  ];
+
+  images = [];
+  let loader = new THREE.TextureLoader();
+  for (let imageFile of imageFiles) {
+    let image = loader.load(imageFile);
+    images.push(image);
+  }
+
   //This is the basic scene setup
   scene = new THREE.Scene();
   let width = window.innerWidth;
@@ -22,18 +40,15 @@ function sceneSetup(){
   document.onmousedown = onMouseDown;
   document.onmouseup = onMouseUp;
 
-  let canvas = document.querySelector('canvas');
-  if (canvas && canvas.length) {
-    canvas = canvas[0];
-    canvas.addEventListener('onmousemove', function (event) {console.log("HALSKDJFLAKSDJFL")});
-
-  }
-
   //Note that we're using an orthographic camera here rather than a prespective
   camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
   camera.position.z = 2;
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({
+    preserveDrawingBuffer: true,
+    antialias: true,
+    alpha: true
+  });
   renderer.setSize( width, height );
   document.body.appendChild( renderer.domElement );
 }
@@ -55,8 +70,6 @@ function onMouseUp(event) {
 }
 
 let fragmentShader = glsl`
-  precision highp sampler2D;
-  precision highp float;
   uniform vec2 resolution;
   uniform vec3 mouse;
   uniform int frame;
@@ -68,35 +81,51 @@ let fragmentShader = glsl`
 
   void main()
   {
-     vec2 uv = gl_FragCoord.xy / resolution.xy;
+    // convert uv from screen size to 0 to 1
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    uv = -1.0 + 2.0 * uv;
 
-     float sin_factor = sin(time*0.00001);
-     float cos_factor = cos(time*0.00001);
-     uv = vec2(uv.x-0.5, uv.y-0.5) * mat2(cos_factor, sin_factor, -sin_factor, cos_factor);
-
-     uv += 0.5;
-
-    if(frame < 10 || mouse.z > 0.0) {
-      gl_FragColor = texture2D(imageTexture, uv);
+    float sinFactor = sin(time*0.00001);
+    float cosFactor = cos(time*0.00001);
+    if (mouse.x > 0.0) {
+      uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);
     } else {
-      uv = -1.0 + 2.0 * uv;
-      uv *= 0.995;
-      uv.y += 0.001;
+      uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);
+    }
+
+    vec4 imagePixel = texture2D(imageTexture, uv*0.5 + 0.5);
+    vec4 bufferPixel = texture2D(bufferTexture, uv*0.5 + 0.5);
+
+    if (frame < 100) {
+      float frameFloat = float(frame);
+      gl_FragColor = mix(vec4(1.0), imagePixel, 0.01*frameFloat);
+    } else if (mouse.z > 0.0) {
+      // gl_FragColor = texture2D(imageTexture, uv*0.5 + 0.5);
+
+      vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;
+      vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;
+      gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);
+    } else {
+      // UVs start at 0.0 and move from -1 to 1
+      uv *= 0.998;
+      // uv.y += 0.001;
       vec3 r = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;
 
-      r.r += r.g*0.001;
-      r.g += r.b*0.001;
-      r.b += r.r*0.001;
-      r = mod(r, vec3(1.0));
+      r += 0.0001;
+      r.r += (max(r.g*0.001, 0.0001));
+      r.g += (max(r.b*0.001, 0.0001));
+      r.b += (max(r.r*0.001, 0.0001));
+      r = mod(abs(r), vec3(1.0));
 
       gl_FragColor = vec4(vec3(r), 1.0);
     }
   }
-`;
+  `;
 
 let fragmentShader2 = glsl`
     precision highp float;
     uniform vec2 resolution;
+    uniform int frame;
     uniform sampler2D bufferTexture;
     uniform sampler2D imageTexture;
     varying vec2 vUv;
@@ -104,12 +133,56 @@ let fragmentShader2 = glsl`
     void main()
     {
       vec2 uv = gl_FragCoord.xy / resolution.xy;
-      vec4 fb = texture2D(bufferTexture, vUv);
-      gl_FragColor = vec4(fb.rgb, 1.0);
+      vec4 bufferPixel = texture2D(bufferTexture, uv);
+      vec4 imagePixel = texture2D(imageTexture, uv);
+      gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);
+      // gl_FragColor = bufferPixel;
+  }
+`
+
+let gaussianBlur = glsl`
+  uniform vec2 resolution;
+  uniform sampler2D bufferTexture;
+
+  float normpdf(in float x, in float sigma) {
+  	return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
+  }
+
+  void main() {
+    //declare stuff
+    const int mSize = 11;
+    const int kSize = (mSize-1)/2;
+    float kernel[mSize];
+    vec3 finalColor = vec3(0.0);
+
+    //create the 1-D kernel
+    float sigma = 7.0;
+    float Z = 0.0;
+    for (int j = 0; j <= kSize; ++j)
+    {
+      kernel[kSize+j] = kernel[kSize-j] = normpdf(float(j), sigma);
+    }
+
+    //get the normalization factor (as the gaussian has been clamped)
+    for (int j = 0; j < mSize; ++j)
+    {
+      Z += kernel[j];
+    }
+
+    //read out the texels
+    for (int i=-kSize; i <= kSize; ++i)
+    {
+      for (int j=-kSize; j <= kSize; ++j)
+      {
+        finalColor += kernel[kSize+j]*kernel[kSize+i]*texture2D(bufferTexture, (gl_FragCoord.xy+vec2(float(i),float(j))) / resolution.xy).rgb;
+      }
+    }
+    gl_FragColor = vec4(finalColor/(Z*Z), 1.0);
   }
 `
 
 let vertexShader = glsl`
+precision highp float;
 varying vec2 vUv;
 void main()
 {
@@ -129,26 +202,28 @@ let bufferMaterial;
 let bufferMaterial2;
 let plane;
 let bufferObject;
+let bufferObject2;
 let finalMaterial;
-let finalfinalMaterial;
 let quad;
-let quad2;
 let uniforms;
 
 function bufferTextureSetup(image){
   //Create buffer scene
   bufferScene = new THREE.Scene();
-  bufferScene2 = new THREE.Scene();
+  bufferScene2= new THREE.Scene();
 
   //Create 2 buffer textures
-  textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
-  textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} );
-  textureC = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} );
+  textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+  textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+  textureC = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+  textureA.type = THREE.FloatType;
+  textureB.type = THREE.FloatType;
+  textureC.type = THREE.FloatType;
 
   // let imageTexture = THREE.ImageUtils.loadTexture( "./src/images/ali_knockout.jpg" );
   // imageTexture.wrapS = THREE.RepeatWrapping;
   // imageTexture.wrapT = THREE.RepeatWrapping;
-  let imageTexture = new THREE.TextureLoader().load('src/images/road.jpg');
+  let imageTexture = images[0];
 
   uniforms = {
     bufferTexture: { type: "t", value: textureA.texture },
@@ -166,53 +241,70 @@ function bufferTextureSetup(image){
     vertexShader: vertexShader
   } );
 
-  bufferMaterial2 = new THREE.ShaderMaterial( {
-    uniforms: {
-      imageTexture: {type: "t", value: imageTexture.texture},
-      resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
-      bufferTexture: {type: "t", value: textureA.texture}
-    },
-    fragmentShader: fragmentShader2,
-    vertexShader: vertexShader
-  } );
-
   plane = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight );
   bufferObject = new THREE.Mesh( plane, bufferMaterial );
   bufferScene.add(bufferObject);
 
-  //Draw textureB to screen
-  quad = new THREE.Mesh( plane, bufferMaterial );
-  bufferScene2.add(quad);
+  bufferMaterial2 = new THREE.ShaderMaterial( {
+    uniforms: {
+      bufferTexture: { type: "t", value: textureB.texture },
+      resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) }
+    },
+    fragmentShader: gaussianBlur,
+    vertexShader: vertexShader
+  } );
+  bufferObject2 = new THREE.Mesh(plane, bufferMaterial2);
+  bufferScene2.add(bufferObject2)
 
-  quad2 = new THREE.Mesh( plane, bufferMaterial2 );
-  scene.add(quad2);
+  finalMaterial = new THREE.ShaderMaterial( {
+    uniforms: {
+      imageTexture: {type: "t", value: imageTexture},
+      resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
+      bufferTexture: {type: "t", value: textureC},
+      frame: {type: "i", value: 0}
+    },
+    fragmentShader: fragmentShader2,
+    vertexShader: vertexShader
+  } );
+  //Draw textureB to screen
+  quad = new THREE.Mesh( plane, finalMaterial);
+  scene.add(quad);
 }
 
 function update () {
   // Schedule the next frame.
   requestAnimationFrame(update);
 
-  //Draw to textureB
+  //Draw to textureB to bufferScene
   renderer.render(bufferScene,camera,textureB,true);
+
   //Swap textureA and B
   var t = textureA;
   textureA = textureB;
   textureB = t;
-  uniforms.bufferTexture.value = textureA.texture;
+  bufferMaterial.uniforms.bufferTexture.value = textureA.texture;
 
-  uniforms.frame.value += 1;
-  uniforms.time.value += clock.getDelta();;
-  uniforms.mouse.value = mouse;
+  bufferMaterial.uniforms.frame.value += 1;
+  bufferMaterial.uniforms.time.value = window.performance.now() / 1000;
+  bufferMaterial.uniforms.mouse.value = mouse;
+  finalMaterial.uniforms.frame.value += 1;
 
-  renderer.render(bufferScene2,camera,textureC,true);
-
+  renderer.render(bufferScene2, camera, textureC, true);
   //Finally, draw to the screen
   renderer.render( scene, camera );
 
+}
+
+function updateImageTextureForTrack(trackIndex, player) {
+  if (!images[trackIndex]) return;
+  bufferMaterial.uniforms.imageTexture.value = images[trackIndex];
+  finalMaterial.uniforms.imageTexture.value = images[trackIndex];
 }
 
 domready(function () {
   sceneSetup();
   bufferTextureSetup();
   update();
+  scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack);
+  scPlayer.init();
 })
