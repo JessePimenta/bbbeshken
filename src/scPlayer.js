@@ -1,12 +1,14 @@
 import SC from 'soundcloud';
 export default class SCPlayer {
 
-  constructor(clientID, trackChangeListener) {
+  constructor(clientID, trackChangeListener, albumUrl, secret) {
     this.clientID = clientID;
     this.trackChangeListener = trackChangeListener;
     this.trackIDs = [];
     this.players = [];
     this.currentTrackIndex = 0;
+    this.albumUrl = albumUrl;
+    this.secret = secret || "";
   }
 
   init() {
@@ -24,9 +26,10 @@ export default class SCPlayer {
   // TODO: Handle case of URL being a track
   getTrackIDs() {
     return new SC.Promise((resolve, reject) => {
-      SC.resolve('https://soundcloud.com/beshkenmusic/sets/closed-doors-ep').then((result) => {
+      SC.resolve('https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS').then((result) => {
         if (result && result.tracks) {
           for (let track of result.tracks) {
+            console.log(track);
             this.trackIDs.push(track.id);
           }
           resolve();
@@ -50,7 +53,7 @@ export default class SCPlayer {
       this.trackChangeListener(trackIndex);
     } else {
       let trackID = this.trackIDs[trackIndex];
-      SC.stream('/tracks/' + trackID).then((player) => {
+      SC.stream('/tracks/' + trackID, this.secret).then((player) => {
         if (player.options.protocols[0] === 'rtmp') {
           player.options.protocols.splice(0, 1);
         }
