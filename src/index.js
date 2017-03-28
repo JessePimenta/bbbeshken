@@ -15,10 +15,12 @@ let scPlayer;
 function sceneSetup(){
 
   let imageFiles = [
-    'src/images/album/0. Album Art*.jpg',
-    'src/images/album/1. Intro*.jpg',
     'src/images/album/2. The Roman Call.jpg',
-    'src/images/album/2.5 Interlude*.jpg'
+    'src/images/album/3. Lightning By The Sea.jpg',
+    'src/images/album/4. Fantom Pain.jpg',
+    'src/images/album/5. Nina.jpg',
+    'src/images/album/6. Force Of Evil.jpg',
+    'src/images/album/7. Purlieu.jpg',
   ];
 
   images = [];
@@ -85,25 +87,27 @@ let fragmentShader = glsl`
     vec2 uv = gl_FragCoord.xy / resolution.xy;
     uv = -1.0 + 2.0 * uv;
 
-    float sinFactor = sin(time*0.00001);
-    float cosFactor = cos(time*0.00001);
-    if (mouse.x > 0.0) {
-      uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);
-    } else {
-      uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);
-    }
-
     vec4 imagePixel = texture2D(imageTexture, uv*0.5 + 0.5);
     vec4 bufferPixel = texture2D(bufferTexture, uv*0.5 + 0.5);
 
+    float sinFactor = sin(0.001);
+    float cosFactor = cos(0.001);
+    if (frame > 100) {
+      if (mouse.x > 0.0) {
+        uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);
+      } else {
+        uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);
+      }
+    }
+
     if (frame < 100) {
       float frameFloat = float(frame);
-      gl_FragColor = mix(vec4(1.0), imagePixel, 0.01*frameFloat);
+      gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*frameFloat);
     } else if (mouse.z > 0.0) {
-      // gl_FragColor = texture2D(imageTexture, uv*0.5 + 0.5);
-
       vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;
       vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;
+      // gl_FragColor = vec4(i, 1.0);
+      // gl_FragColor = vec4(b, 1.0);
       gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);
     } else {
       // UVs start at 0.0 and move from -1 to 1
@@ -137,6 +141,12 @@ let fragmentShader2 = glsl`
       vec4 imagePixel = texture2D(imageTexture, uv);
       gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);
       // gl_FragColor = bufferPixel;
+
+      // This makes the warping happen from the center out
+      // uv = -1.0 + 2.0 * uv;
+      // vec2 scaleCenter = vec2(0.5, 0.5);
+      // uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;
+      // gl_FragColor = texture2D(imageTexture, uv);
   }
 `
 
@@ -297,6 +307,7 @@ function update () {
 
 function updateImageTextureForTrack(trackIndex, player) {
   if (!images[trackIndex]) return;
+  bufferMaterial.uniforms.frame.value = 0;
   bufferMaterial.uniforms.imageTexture.value = images[trackIndex];
   finalMaterial.uniforms.imageTexture.value = images[trackIndex];
 }
@@ -305,6 +316,9 @@ domready(function () {
   sceneSetup();
   bufferTextureSetup();
   update();
-  scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack);
+  scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
+                           updateImageTextureForTrack,
+                           'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
+                           's-KqrgS');
   scPlayer.init();
 })
