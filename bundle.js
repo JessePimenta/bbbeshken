@@ -43376,8 +43376,8 @@ var i=t.exports=n(4),r=Array.prototype.slice;i.extend({Deferred:function(t){var 
 },{}],5:[function(require,module,exports){
 'use strict';
 
-var _templateObject = _taggedTemplateLiteral(['\n  uniform vec2 resolution;\n  uniform vec3 mouse;\n  uniform int frame;\n  uniform float time;\n  uniform sampler2D bufferTexture;\n  uniform sampler2D imageTexture;\n\n  varying vec2 vUv;\n\n  void main()\n  {\n    // convert uv from screen size to 0 to 1\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    uv = -1.0 + 2.0 * uv;\n\n    float sinFactor = sin(time*0.00001);\n    float cosFactor = cos(time*0.00001);\n    if (mouse.x > 0.0) {\n      uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);\n    } else {\n      uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);\n    }\n\n    vec4 imagePixel = texture2D(imageTexture, uv*0.5 + 0.5);\n    vec4 bufferPixel = texture2D(bufferTexture, uv*0.5 + 0.5);\n\n    if (frame < 100) {\n      float frameFloat = float(frame);\n      gl_FragColor = mix(vec4(1.0), imagePixel, 0.01*frameFloat);\n    } else if (mouse.z > 0.0) {\n      // gl_FragColor = texture2D(imageTexture, uv*0.5 + 0.5);\n\n      vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;\n      vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n      gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);\n    } else {\n      // UVs start at 0.0 and move from -1 to 1\n      uv *= 0.998;\n      // uv.y += 0.001;\n      vec3 r = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n\n      r += 0.0001;\n      r.r += (max(r.g*0.001, 0.0001));\n      r.g += (max(r.b*0.001, 0.0001));\n      r.b += (max(r.r*0.001, 0.0001));\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(vec3(r), 1.0);\n    }\n  }\n  '], ['\n  uniform vec2 resolution;\n  uniform vec3 mouse;\n  uniform int frame;\n  uniform float time;\n  uniform sampler2D bufferTexture;\n  uniform sampler2D imageTexture;\n\n  varying vec2 vUv;\n\n  void main()\n  {\n    // convert uv from screen size to 0 to 1\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    uv = -1.0 + 2.0 * uv;\n\n    float sinFactor = sin(time*0.00001);\n    float cosFactor = cos(time*0.00001);\n    if (mouse.x > 0.0) {\n      uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);\n    } else {\n      uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);\n    }\n\n    vec4 imagePixel = texture2D(imageTexture, uv*0.5 + 0.5);\n    vec4 bufferPixel = texture2D(bufferTexture, uv*0.5 + 0.5);\n\n    if (frame < 100) {\n      float frameFloat = float(frame);\n      gl_FragColor = mix(vec4(1.0), imagePixel, 0.01*frameFloat);\n    } else if (mouse.z > 0.0) {\n      // gl_FragColor = texture2D(imageTexture, uv*0.5 + 0.5);\n\n      vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;\n      vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n      gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);\n    } else {\n      // UVs start at 0.0 and move from -1 to 1\n      uv *= 0.998;\n      // uv.y += 0.001;\n      vec3 r = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n\n      r += 0.0001;\n      r.r += (max(r.g*0.001, 0.0001));\n      r.g += (max(r.b*0.001, 0.0001));\n      r.b += (max(r.r*0.001, 0.0001));\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(vec3(r), 1.0);\n    }\n  }\n  ']),
-    _templateObject2 = _taggedTemplateLiteral(['\n    precision highp float;\n    uniform vec2 resolution;\n    uniform int frame;\n    uniform sampler2D bufferTexture;\n    uniform sampler2D imageTexture;\n    varying vec2 vUv;\n\n    void main()\n    {\n      vec2 uv = gl_FragCoord.xy / resolution.xy;\n      vec4 bufferPixel = texture2D(bufferTexture, uv);\n      vec4 imagePixel = texture2D(imageTexture, uv);\n      gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);\n      // gl_FragColor = bufferPixel;\n  }\n'], ['\n    precision highp float;\n    uniform vec2 resolution;\n    uniform int frame;\n    uniform sampler2D bufferTexture;\n    uniform sampler2D imageTexture;\n    varying vec2 vUv;\n\n    void main()\n    {\n      vec2 uv = gl_FragCoord.xy / resolution.xy;\n      vec4 bufferPixel = texture2D(bufferTexture, uv);\n      vec4 imagePixel = texture2D(imageTexture, uv);\n      gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);\n      // gl_FragColor = bufferPixel;\n  }\n']),
+var _templateObject = _taggedTemplateLiteral(['\n  uniform vec2 resolution;\n  uniform vec3 mouse;\n  uniform int frame;\n  uniform float time;\n  uniform sampler2D bufferTexture;\n  uniform sampler2D imageTexture;\n\n  varying vec2 vUv;\n\n  void main()\n  {\n    // convert uv from screen size to 0 to 1\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    uv = -1.0 + 2.0 * uv;\n\n    vec4 imagePixel = texture2D(imageTexture, uv*0.5 + 0.5);\n    vec4 bufferPixel = texture2D(bufferTexture, uv*0.5 + 0.5);\n\n    float sinFactor = sin(0.001);\n    float cosFactor = cos(0.001);\n    if (frame > 100) {\n      if (mouse.x > 0.0) {\n        uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);\n      } else {\n        uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);\n      }\n    }\n\n    if (frame < 100) {\n      float frameFloat = float(frame);\n      gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*frameFloat);\n    } else if (mouse.z > 0.0) {\n      vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;\n      vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n      // gl_FragColor = vec4(i, 1.0);\n      // gl_FragColor = vec4(b, 1.0);\n      gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);\n    } else {\n      // UVs start at 0.0 and move from -1 to 1\n      uv *= 0.998;\n      // uv.y += 0.001;\n      vec3 r = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n\n      r += 0.0001;\n      r.r += (max(r.g*0.001, 0.0001));\n      r.g += (max(r.b*0.001, 0.0001));\n      r.b += (max(r.r*0.001, 0.0001));\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(vec3(r), 1.0);\n    }\n  }\n  '], ['\n  uniform vec2 resolution;\n  uniform vec3 mouse;\n  uniform int frame;\n  uniform float time;\n  uniform sampler2D bufferTexture;\n  uniform sampler2D imageTexture;\n\n  varying vec2 vUv;\n\n  void main()\n  {\n    // convert uv from screen size to 0 to 1\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    uv = -1.0 + 2.0 * uv;\n\n    vec4 imagePixel = texture2D(imageTexture, uv*0.5 + 0.5);\n    vec4 bufferPixel = texture2D(bufferTexture, uv*0.5 + 0.5);\n\n    float sinFactor = sin(0.001);\n    float cosFactor = cos(0.001);\n    if (frame > 100) {\n      if (mouse.x > 0.0) {\n        uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);\n      } else {\n        uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);\n      }\n    }\n\n    if (frame < 100) {\n      float frameFloat = float(frame);\n      gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*frameFloat);\n    } else if (mouse.z > 0.0) {\n      vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;\n      vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n      // gl_FragColor = vec4(i, 1.0);\n      // gl_FragColor = vec4(b, 1.0);\n      gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);\n    } else {\n      // UVs start at 0.0 and move from -1 to 1\n      uv *= 0.998;\n      // uv.y += 0.001;\n      vec3 r = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;\n\n      r += 0.0001;\n      r.r += (max(r.g*0.001, 0.0001));\n      r.g += (max(r.b*0.001, 0.0001));\n      r.b += (max(r.r*0.001, 0.0001));\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(vec3(r), 1.0);\n    }\n  }\n  ']),
+    _templateObject2 = _taggedTemplateLiteral(['\n    precision highp float;\n    uniform vec2 resolution;\n    uniform int frame;\n    uniform sampler2D bufferTexture;\n    uniform sampler2D imageTexture;\n    varying vec2 vUv;\n\n    void main()\n    {\n      vec2 uv = gl_FragCoord.xy / resolution.xy;\n      vec4 bufferPixel = texture2D(bufferTexture, uv);\n      vec4 imagePixel = texture2D(imageTexture, uv);\n      gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);\n      // gl_FragColor = bufferPixel;\n\n      // This makes the warping happen from the center out\n      // uv = -1.0 + 2.0 * uv;\n      // vec2 scaleCenter = vec2(0.5, 0.5);\n      // uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;\n      // gl_FragColor = texture2D(imageTexture, uv);\n  }\n'], ['\n    precision highp float;\n    uniform vec2 resolution;\n    uniform int frame;\n    uniform sampler2D bufferTexture;\n    uniform sampler2D imageTexture;\n    varying vec2 vUv;\n\n    void main()\n    {\n      vec2 uv = gl_FragCoord.xy / resolution.xy;\n      vec4 bufferPixel = texture2D(bufferTexture, uv);\n      vec4 imagePixel = texture2D(imageTexture, uv);\n      gl_FragColor = texture2D(imageTexture, uv * bufferPixel.rg);\n      // gl_FragColor = bufferPixel;\n\n      // This makes the warping happen from the center out\n      // uv = -1.0 + 2.0 * uv;\n      // vec2 scaleCenter = vec2(0.5, 0.5);\n      // uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;\n      // gl_FragColor = texture2D(imageTexture, uv);\n  }\n']),
     _templateObject3 = _taggedTemplateLiteral(['\n  uniform vec2 resolution;\n  uniform sampler2D bufferTexture;\n\n  float normpdf(in float x, in float sigma) {\n  \treturn 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;\n  }\n\n  void main() {\n    //declare stuff\n    const int mSize = 11;\n    const int kSize = (mSize-1)/2;\n    float kernel[mSize];\n    vec3 finalColor = vec3(0.0);\n\n    //create the 1-D kernel\n    float sigma = 7.0;\n    float Z = 0.0;\n    for (int j = 0; j <= kSize; ++j)\n    {\n      kernel[kSize+j] = kernel[kSize-j] = normpdf(float(j), sigma);\n    }\n\n    //get the normalization factor (as the gaussian has been clamped)\n    for (int j = 0; j < mSize; ++j)\n    {\n      Z += kernel[j];\n    }\n\n    //read out the texels\n    for (int i=-kSize; i <= kSize; ++i)\n    {\n      for (int j=-kSize; j <= kSize; ++j)\n      {\n        finalColor += kernel[kSize+j]*kernel[kSize+i]*texture2D(bufferTexture, (gl_FragCoord.xy+vec2(float(i),float(j))) / resolution.xy).rgb;\n      }\n    }\n    gl_FragColor = vec4(finalColor/(Z*Z), 1.0);\n  }\n'], ['\n  uniform vec2 resolution;\n  uniform sampler2D bufferTexture;\n\n  float normpdf(in float x, in float sigma) {\n  \treturn 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;\n  }\n\n  void main() {\n    //declare stuff\n    const int mSize = 11;\n    const int kSize = (mSize-1)/2;\n    float kernel[mSize];\n    vec3 finalColor = vec3(0.0);\n\n    //create the 1-D kernel\n    float sigma = 7.0;\n    float Z = 0.0;\n    for (int j = 0; j <= kSize; ++j)\n    {\n      kernel[kSize+j] = kernel[kSize-j] = normpdf(float(j), sigma);\n    }\n\n    //get the normalization factor (as the gaussian has been clamped)\n    for (int j = 0; j < mSize; ++j)\n    {\n      Z += kernel[j];\n    }\n\n    //read out the texels\n    for (int i=-kSize; i <= kSize; ++i)\n    {\n      for (int j=-kSize; j <= kSize; ++j)\n      {\n        finalColor += kernel[kSize+j]*kernel[kSize+i]*texture2D(bufferTexture, (gl_FragCoord.xy+vec2(float(i),float(j))) / resolution.xy).rgb;\n      }\n    }\n    gl_FragColor = vec4(finalColor/(Z*Z), 1.0);\n  }\n']),
     _templateObject4 = _taggedTemplateLiteral(['\nprecision highp float;\nvarying vec2 vUv;\nvoid main()\n{\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * mvPosition;\n}\n'], ['\nprecision highp float;\nvarying vec2 vUv;\nvoid main()\n{\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * mvPosition;\n}\n']);
 
@@ -43414,7 +43414,7 @@ var scPlayer = void 0;
 
 function sceneSetup() {
 
-  var imageFiles = ['src/images/album/0. Album Art*.jpg', 'src/images/album/1. Intro*.jpg', 'src/images/album/2. The Roman Call.jpg', 'src/images/album/2.5 Interlude*.jpg'];
+  var imageFiles = ['src/images/album/2. The Roman Call.jpg', 'src/images/album/3. Lightning By The Sea.jpg', 'src/images/album/4. Fantom Pain.jpg', 'src/images/album/5. Nina.jpg', 'src/images/album/6. Force Of Evil.jpg', 'src/images/album/7. Purlieu.jpg'];
 
   images = [];
   var loader = new THREE.TextureLoader();
@@ -43597,6 +43597,7 @@ function update() {
 
 function updateImageTextureForTrack(trackIndex, player) {
   if (!images[trackIndex]) return;
+  bufferMaterial.uniforms.frame.value = 0;
   bufferMaterial.uniforms.imageTexture.value = images[trackIndex];
   finalMaterial.uniforms.imageTexture.value = images[trackIndex];
 }
@@ -43605,7 +43606,7 @@ function updateImageTextureForTrack(trackIndex, player) {
   sceneSetup();
   bufferTextureSetup();
   update();
-  scPlayer = new _scPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack);
+  scPlayer = new _scPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
   scPlayer.init();
 });
 
@@ -43627,7 +43628,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var SCPlayer = function () {
-  function SCPlayer(clientID, trackChangeListener) {
+  function SCPlayer(clientID, trackChangeListener, albumUrl, secret) {
     _classCallCheck(this, SCPlayer);
 
     this.clientID = clientID;
@@ -43635,6 +43636,8 @@ var SCPlayer = function () {
     this.trackIDs = [];
     this.players = [];
     this.currentTrackIndex = 0;
+    this.albumUrl = albumUrl;
+    this.secret = secret || "";
   }
 
   _createClass(SCPlayer, [{
@@ -43661,7 +43664,7 @@ var SCPlayer = function () {
       var _this2 = this;
 
       return new _soundcloud2.default.Promise(function (resolve, reject) {
-        _soundcloud2.default.resolve('https://soundcloud.com/beshkenmusic/sets/closed-doors-ep').then(function (result) {
+        _soundcloud2.default.resolve('https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS').then(function (result) {
           if (result && result.tracks) {
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -43671,6 +43674,7 @@ var SCPlayer = function () {
               for (var _iterator = result.tracks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                 var track = _step.value;
 
+                console.log(track);
                 _this2.trackIDs.push(track.id);
               }
             } catch (err) {
@@ -43712,7 +43716,7 @@ var SCPlayer = function () {
         this.trackChangeListener(trackIndex);
       } else {
         var trackID = this.trackIDs[trackIndex];
-        _soundcloud2.default.stream('/tracks/' + trackID).then(function (player) {
+        _soundcloud2.default.stream('/tracks/' + trackID, this.secret).then(function (player) {
           if (player.options.protocols[0] === 'rtmp') {
             player.options.protocols.splice(0, 1);
           }
