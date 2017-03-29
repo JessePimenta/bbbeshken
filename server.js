@@ -7,7 +7,8 @@ budo('./src/index.js', {
   browserify: {
     transform: [
       babelify.configure({
-        presets: ['es2015']
+        presets: ['es2015'],
+        plugins: ['glslify']
       })
     ]  // ES6
   }
