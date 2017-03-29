@@ -42,24 +42,33 @@ export default class SCPlayer {
   playTrack(trackIndex) {
     let lastTrackIndex = this.currentTrackIndex;
     this.currentTrackIndex = trackIndex;
-    if (this.players[trackIndex] && trackIndex == lastTrackIndex) {
+
+    if (this.players[trackIndex] && trackIndex == lastTrackIndex)
+    {
       this.players[trackIndex].play();
-      console.log("HEY");
       this.trackChangeListener(trackIndex);
-    } else if (this.players[trackIndex]) {
+    }
+    else if (this.players[trackIndex])
+    {
       this.players[trackIndex].seek(0)
       this.players[trackIndex].play();
-      console.log("HELLO");
       this.trackChangeListener(trackIndex);
-    } else {
+    }
+    else
+    {
       let trackID = this.trackIDs[trackIndex];
+
       SC.stream('/tracks/' + trackID, this.secret).then((player) => {
+        // Chrome won't play with flash
         if (player.options.protocols[0] === 'rtmp') {
           player.options.protocols.splice(0, 1);
         }
+
         this.players[trackIndex] = player;
         this.players[trackIndex].play();
+
         if (this.trackChangeListener) this.trackChangeListener(trackIndex);
+
         this.players[trackIndex].on('finish', (event) => {
           this.skipForward();
           if (!this.trackChangeListener) return;

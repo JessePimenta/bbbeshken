@@ -106,8 +106,6 @@ let fragmentShader = glsl`
     } else if (mouse.z > 0.0) {
       vec3 i = texture2D(imageTexture, uv*0.5 + 0.5).rgb;
       vec3 b = texture2D(bufferTexture, uv*0.5 + 0.5).rgb;
-      // gl_FragColor = vec4(i, 1.0);
-      // gl_FragColor = vec4(b, 1.0);
       gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);
     } else {
       // UVs start at 0.0 and move from -1 to 1

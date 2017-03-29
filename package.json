@@ -4,6 +4,7 @@
   "description": "Ben Ben & Ben",
   "main": "index.js",
   "scripts": {
+    "build": "browserify src/index.js -o bundle.js -t [ babelify --presets [ es2015 ] ]",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ben Yoshiwara, Ben Lyaunzon",
