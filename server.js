@@ -4,6 +4,7 @@ var babelify = require('babelify')
 budo('./src/index.js', {
   live: true,             // setup live reload
   port: 7000,             // use this port
+  watchGlob: '**/*.{html,css,js,frag,vert}',
   browserify: {
     transform: [
       babelify.configure({
