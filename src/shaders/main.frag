@@ -1,31 +1,48 @@
-uniform vec2 res;
-uniform float time;
-uniform sampler2D imageTexture;
-uniform sampler2D bufferTexture;
+uniform vec2 iResolution;
+uniform vec3 iMouse;
+uniform int iFrame;
+uniform float iGlobalTime;
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
 
-void main(){
-  vec2 coord = gl_FragCoord.xy / res.xy;
+varying vec2 vUv;
 
-  float sin_factor = sin(time*0.001);
-  float cos_factor = cos(time*0.001);
-  coord = vec2((coord.x - 0.5), coord.y - 0.5 ) * mat2(cos_factor, sin_factor, -sin_factor, cos_factor);
+void main()
+{
+  // convert uv from screen size to 0 to 1
+  vec2 uv = gl_FragCoord.xy / iResolution.xy;
+  uv = -1.0 + 2.0 * uv;
 
-  coord += 0.5;
+  vec4 imagePixel = texture2D(iChannel1, uv*0.5 + 0.5);
+  vec4 bufferPixel = texture2D(iChannel0, uv*0.5 + 0.5);
 
-  if (time < 1.0) {
-    gl_FragColor = texture2D(imageTexture, coord);
+  float sinFactor = sin(0.001);
+  float cosFactor = cos(0.001);
+  if (iFrame > 100) {
+    if (iMouse.x > 0.0) {
+      uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);
+    } else {
+      uv = vec2(uv.x, uv.y) * mat2(cosFactor, -sinFactor, sinFactor, cosFactor);
+    }
+  }
+  float iFrameFloat = float(iFrame);
+  if (iFrame < 100) {
+    gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*iFrameFloat);
+  } else if (iMouse.z > 0.0) {
+    vec3 i = texture2D(iChannel1, uv*0.5 + 0.5).rgb;
+    vec3 b = texture2D(iChannel0, uv*0.5 + 0.5).rgb;
+    gl_FragColor = vec4(mix(b, vec3(0.95), 0.005), 1.0);
   } else {
-    coord = -1.0 + 2.0 * coord;
-    coord *= 0.995;
-    coord.y += 0.001;
-    vec2 step = 1.25/res.xy;
-    vec3 r = texture2D(bufferTexture, coord*0.5 + 0.5).rgb;
+    // UVs start at 0.0 and move from -1 to 1
+    uv *= 0.998;
+    // uv.y += 0.001;
+    vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;
 
-    //r+= 0.001;
-    r.r += r.g*0.001;
-    r.g += r.b*0.001;
-    r.b += r.r*0.001;
-    r = mod(r, vec3(1.0));
+    r += 0.0001;
+    r.r += (max(r.g*0.001, 0.0001));
+    r.g += (max(r.b*0.001, 0.0001));
+    r.b += (max(r.r*0.001, 0.0001));
+    r = mod(abs(r), vec3(1.0));
 
     gl_FragColor = vec4(vec3(r), 1.0);
   }

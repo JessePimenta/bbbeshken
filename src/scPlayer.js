@@ -26,7 +26,7 @@ export default class SCPlayer {
   // TODO: Handle case of URL being a track
   getTrackIDs() {
     return new SC.Promise((resolve, reject) => {
-      SC.resolve('https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS').then((result) => {
+      SC.resolve(this.albumUrl).then((result) => {
         if (result && result.tracks) {
           for (let track of result.tracks) {
             console.log(track);
@@ -46,13 +46,13 @@ export default class SCPlayer {
     if (this.players[trackIndex] && trackIndex == lastTrackIndex)
     {
       this.players[trackIndex].play();
-      this.trackChangeListener(trackIndex);
+      // this.trackChangeListener(trackIndex);
     }
     else if (this.players[trackIndex])
     {
       this.players[trackIndex].seek(0)
       this.players[trackIndex].play();
-      this.trackChangeListener(trackIndex);
+      // this.trackChangeListener(trackIndex);
     }
     else
     {
@@ -65,15 +65,17 @@ export default class SCPlayer {
         }
 
         this.players[trackIndex] = player;
-        this.players[trackIndex].play();
 
-        if (this.trackChangeListener) this.trackChangeListener(trackIndex);
+        this.players[trackIndex].on('play-start', (event) => {
+          if (event.position == 0) this.trackChangeListener(trackIndex);
+        })
 
         this.players[trackIndex].on('finish', (event) => {
           this.skipForward();
-          if (!this.trackChangeListener) return;
-          this.trackChangeListener(trackIndex);
         })
+
+        this.players[trackIndex].play();
+
       });
     }
   }
