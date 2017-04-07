@@ -7,6 +7,12 @@
     "build": "browserify src/index.js -o bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "browserify": {
+    "transform": [["babelify", {
+      "presets": ["es2015"] ,
+      "plugins": ["babel-plugin-glslify"]
+    }]]
+  },
   "author": "Ben Yoshiwara, Ben Lyaunzon",
   "license": "ISC",
   "devDependencies": {
