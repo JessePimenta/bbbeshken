@@ -117,11 +117,11 @@ export const final = glsl`
 
     // bufferPixel = vec4(mix(bufferPixel.rgb, vec3(1.0), (iMouse.y+1.)/2.), 1.);
     // gl_FragColor = texture2D(iChannel1, uv * bufferPixel.rg);
-    gl_FragColor = bufferPixel;
+    // gl_FragColor = bufferPixel;
     // This makes the warping happen from the center out
-      // uv = -1.0 + 2.0 * uv;
-      // vec2 scaleCenter = vec2(0.5, 0.5);
-      // uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;
-      // gl_FragColor = texture2D(iChannel1, uv*0.5+0.5);
+    uv = -1.0 + 2.0 * uv;
+    vec2 scaleCenter = vec2(0.5, 0.5);
+    uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;
+    gl_FragColor = texture2D(iChannel1, uv*0.5+0.5);
   }
 `
