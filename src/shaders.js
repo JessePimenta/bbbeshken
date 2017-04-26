@@ -33,6 +33,10 @@ export const main = glsl`
       // Start out with the original image
       gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*iFrameFloat);
     }
+    else if (iMouse.z > 0.0001)
+    {
+      gl_FragColor = mix(bufferPixel, vec4(1.0), 0.005);
+    }
     else if (mod(floor(float(iFrame)/500.) + 1., 5.) < 0.0001)
     {
       uv *= 0.998;

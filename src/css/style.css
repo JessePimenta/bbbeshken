@@ -10,7 +10,10 @@ canvas {
 }
 
 #album-container {
+  box-sizing: border-box;
   position: absolute;
+  border-top: 80px solid #000;
+  border-bottom: 80px solid #000;
   width: 100%;
   height: 100%;
   top: 0;
@@ -18,11 +21,14 @@ canvas {
 }
 
 .player-controls {
+  box-sizing: border-box;
   z-index: 100;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 400px;
+  bottom: 0px;
+  padding: 0 20px;
+  line-height: 80px;
+  vertical-align: middle;
+  width: 100%;
 }
 
 .player-controls div {
@@ -31,6 +37,12 @@ canvas {
 }
 
 .player-controls i {
+  transition: all 0.01s;
   font-size: 24px;
+  text-shadow: #FFF 0 0 40px;
   color: #FFF;
+}
+
+.player-controls i:hover {
+  text-shadow: #FFF 0 0 10px;
 }

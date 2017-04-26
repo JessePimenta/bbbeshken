@@ -34,7 +34,7 @@ export default class SCPlayer {
     //   event.preventDefault();
     //   this.pauseTrack();
     // });
-    
+
     document.getElementById('forward').addEventListener('click', (event) => {
       event.preventDefault();
       this.skipForward();
@@ -98,7 +98,6 @@ export default class SCPlayer {
         })
 
         this.players[trackIndex].play();
-
       });
     }
   }

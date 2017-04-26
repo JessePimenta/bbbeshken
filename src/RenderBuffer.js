@@ -75,10 +75,6 @@ export default class RenderBuffer {
     });
   }
 
-  renderToScreen() {
-    this.renderer.render(this.bufferScene, this.camera);
-  }
-
   updateUniforms(uniforms) {
     _.assign(this.uniforms, uniforms);
   }

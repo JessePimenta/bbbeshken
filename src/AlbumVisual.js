@@ -44,7 +44,6 @@ export default class AlbumVisual {
     this.started = false;
   }
 
-
   /**
    * setupTextures - Initiate all the textures for the viewer here.
    * For reuse we could treat AlbumView like an abstract class and have
@@ -114,7 +113,7 @@ export default class AlbumVisual {
   }
 
   updateRenderSize(resolution) {
-    // fit(this.renderer.domElement, this.container);
+    fit(this.renderer.domElement, this.container);
     this.renderSize = resolution;
     this.renderer.setSize(this.renderSize.x, this.renderSize.y);
 
