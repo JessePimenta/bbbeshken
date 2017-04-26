@@ -1,4 +1,54 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var size = require('element-size')
+
+module.exports = fit
+
+var scratch = new Float32Array(2)
+
+function fit(canvas, parent, scale) {
+  var isSVG = canvas.nodeName.toUpperCase() === 'SVG'
+
+  canvas.style.position = canvas.style.position || 'absolute'
+  canvas.style.top = 0
+  canvas.style.left = 0
+
+  resize.scale  = parseFloat(scale || 1)
+  resize.parent = parent
+
+  return resize()
+
+  function resize() {
+    var p = resize.parent || canvas.parentNode
+    if (typeof p === 'function') {
+      var dims   = p(scratch) || scratch
+      var width  = dims[0]
+      var height = dims[1]
+    } else
+    if (p && p !== document.body) {
+      var psize  = size(p)
+      var width  = psize[0]|0
+      var height = psize[1]|0
+    } else {
+      var width  = window.innerWidth
+      var height = window.innerHeight
+    }
+
+    if (isSVG) {
+      canvas.setAttribute('width', width * resize.scale + 'px')
+      canvas.setAttribute('height', height * resize.scale + 'px')
+    } else {
+      canvas.width = width * resize.scale
+      canvas.height = height * resize.scale
+    }
+
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
+
+    return resize
+  }
+}
+
+},{"element-size":3}],2:[function(require,module,exports){
 /*!
   * domready (c) Dustin Diaz 2014 - License MIT
   */
@@ -30,7 +80,43 @@
 
 });
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
+module.exports = getSize
+
+function getSize(element) {
+  // Handle cases where the element is not already
+  // attached to the DOM by briefly appending it
+  // to document.body, and removing it again later.
+  if (element === window || element === document.body) {
+    return [window.innerWidth, window.innerHeight]
+  }
+
+  if (!element.parentNode) {
+    var temporary = true
+    document.body.appendChild(element)
+  }
+
+  var bounds = element.getBoundingClientRect()
+  var styles = getComputedStyle(element)
+  var height = (bounds.height|0)
+    + parse(styles.getPropertyValue('margin-top'))
+    + parse(styles.getPropertyValue('margin-bottom'))
+  var width  = (bounds.width|0)
+    + parse(styles.getPropertyValue('margin-left'))
+    + parse(styles.getPropertyValue('margin-right'))
+
+  if (temporary) {
+    document.body.removeChild(element)
+  }
+
+  return [width, height]
+}
+
+function parse(prop) {
+  return parseFloat(prop) || 0
+}
+
+},{}],4:[function(require,module,exports){
 module.exports = function(strings) {
   if (typeof strings === 'string') strings = [strings]
   var exprs = [].slice.call(arguments,1)
@@ -42,7 +128,7 @@ module.exports = function(strings) {
   return parts.join('')
 }
 
-},{}],3:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -17130,7 +17216,7 @@ module.exports = function(strings) {
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 !function(t,e){if("object"==typeof exports&&"object"==typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var n=e();for(var i in n)("object"==typeof exports?exports:t)[i]=n[i]}}(this,function(){return function(t){function e(i){if(n[i])return n[i].exports;var r=n[i]={exports:{},id:i,loaded:!1};return t[i].call(r.exports,r,r.exports,e),r.loaded=!0,r.exports}var n={};return e.m=t,e.c=n,e.p="",e(0)}([function(t,e,n){(function(e){"use strict";var i=n(4),r=n(8),o=n(2),s=n(9),a=n(1).Promise,u=n(15),h=n(16);t.exports=e.SC={initialize:function(){var t=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];o.set("oauth_token",t.oauth_token),o.set("client_id",t.client_id),o.set("redirect_uri",t.redirect_uri),o.set("baseURL",t.baseURL),o.set("connectURL",t.connectURL)},get:function(t,e){return i.request("GET",t,e)},post:function(t,e){return i.request("POST",t,e)},put:function(t,e){return i.request("PUT",t,e)},"delete":function(t){return i.request("DELETE",t)},upload:function(t){return i.upload(t)},connect:function(t){return s(t)},isConnected:function(){return void 0!==o.get("oauth_token")},oEmbed:function(t,e){return i.oEmbed(t,e)},resolve:function(t){return i.resolve(t)},Recorder:u,Promise:a,stream:function(t,e){return h(t,e)},connectCallback:function(){r.notifyDialog(this.location)}}}).call(e,function(){return this}())},function(t,e,n){var i;(function(t,r,o,s){/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
@@ -17159,7 +17245,7 @@ this[this.isPaused()?"play":"pause"]()},play:function(t){var e;if(t&&null!=t.see
 		*/
 var i=t.exports=n(4),r=Array.prototype.slice;i.extend({Deferred:function(t){var e=[["resolve","done",i.Callbacks("once memory"),"resolved"],["reject","fail",i.Callbacks("once memory"),"rejected"],["notify","progress",i.Callbacks("memory")]],n="pending",r={state:function(){return n},always:function(){return o.done(arguments).fail(arguments),this},then:function(){var t=arguments;return i.Deferred(function(n){i.each(e,function(e,r){var s=r[0],a=t[e];o[r[1]](i.isFunction(a)?function(){var t=a.apply(this,arguments);t&&i.isFunction(t.promise)?t.promise().done(n.resolve).fail(n.reject).progress(n.notify):n[s+"With"](this===o?n:this,[t])}:n[s])}),t=null}).promise()},promise:function(t){return null!=t?i.extend(t,r):r}},o={};return r.pipe=r.then,i.each(e,function(t,i){var s=i[2],a=i[3];r[i[1]]=s.add,a&&s.add(function(){n=a},e[1^t][2].disable,e[2][2].lock),o[i[0]]=s.fire,o[i[0]+"With"]=s.fireWith}),r.promise(o),t&&t.call(o,o),o},when:function(t){var e,n,o,s=0,a=r.call(arguments),u=a.length,h=1!==u||t&&i.isFunction(t.promise)?u:0,c=1===h?t:i.Deferred(),l=function(t,n,i){return function(o){n[t]=this,i[t]=arguments.length>1?r.call(arguments):o,i===e?c.notifyWith(n,i):--h||c.resolveWith(n,i)}};if(u>1)for(e=new Array(u),n=new Array(u),o=new Array(u);u>s;s++)a[s]&&i.isFunction(a[s].promise)?a[s].promise().done(l(s,o,a)).fail(c.reject).progress(l(s,n,e)):--h;return h||c.resolveWith(o,a),c.promise()}})},function(t,e,n){function i(t){var e=s[t]={};return r.each(t.split(o),function(t,n){e[n]=!0}),e}var r=t.exports=n(5),o=/\s+/,s={};r.Callbacks=function(t){t="string"==typeof t?s[t]||i(t):r.extend({},t);var e,n,o,a,u,h,c=[],l=!t.once&&[],f=function(i){for(e=t.memory&&i,n=!0,h=a||0,a=0,u=c.length,o=!0;c&&u>h;h++)if(c[h].apply(i[0],i[1])===!1&&t.stopOnFalse){e=!1;break}o=!1,c&&(l?l.length&&f(l.shift()):e?c=[]:d.disable())},d={add:function(){if(c){var n=c.length;!function i(e){r.each(e,function(e,n){var o=r.type(n);"function"===o?t.unique&&d.has(n)||c.push(n):n&&n.length&&"string"!==o&&i(n)})}(arguments),o?u=c.length:e&&(a=n,f(e))}return this},remove:function(){return c&&r.each(arguments,function(t,e){for(var n;(n=r.inArray(e,c,n))>-1;)c.splice(n,1),o&&(u>=n&&u--,h>=n&&h--)}),this},has:function(t){return r.inArray(t,c)>-1},empty:function(){return c=[],this},disable:function(){return c=l=e=void 0,this},disabled:function(){return!c},lock:function(){return l=void 0,e||d.disable(),this},locked:function(){return!l},fireWith:function(t,e){return e=e||[],e=[t,e.slice?e.slice():e],!c||n&&!l||(o?l.push(e):f(e)),this},fire:function(){return d.fireWith(this,arguments),this},fired:function(){return!!n}};return d}},function(t,e){function n(t){return null==t?String(t):c[h.call(t)]||"object"}function i(t){return"function"===u.type(t)}function r(t){return"array"===u.type(t)}function o(t,e,n){var r,o=0,s=t.length,a=void 0===s||i(t);if(n)if(a){for(r in t)if(e.apply(t[r],n)===!1)break}else for(;s>o&&e.apply(t[o++],n)!==!1;);else if(a){for(r in t)if(e.call(t[r],r,t[r])===!1)break}else for(;s>o&&e.call(t[o],o,t[o++])!==!1;);return t}function s(t){return!(!t||"object"!==u.type(t))}function a(){var t,e,n,i,r,o,s=arguments[0]||{},a=1,h=arguments.length,c=!1;for("boolean"==typeof s&&(c=s,s=arguments[1]||{},a=2),"object"==typeof s||u.isFunction(s)||(s={}),h===a&&(s=this,--a);h>a;a++)if(null!=(t=arguments[a]))for(e in t)n=s[e],i=t[e],s!==i&&(c&&i&&(u.isPlainObject(i)||(r=u.isArray(i)))?(r?(r=!1,o=n&&u.isArray(n)?n:[]):o=n&&u.isPlainObject(n)?n:{},s[e]=u.extend(c,o,i)):void 0!==i&&(s[e]=i));return s}var u=t.exports={type:n,isArray:r,isFunction:i,isPlainObject:s,each:o,extend:a,noop:function(){}},h=Object.prototype.toString,c={};"Boolean Number String Function Array Date RegExp Object".split(" ").forEach(function(t){c["[object "+t+"]"]=t.toLowerCase()})},function(t,e,n){function i(t){this.listenTime+=t.from-this.currentTime,this.currentTime=t.to}function r(t){this.listenTime+=t.position-this.currentTime,this.currentTime=t.position}function o(t){this.currentTime=t.position}var s,a=n(7);s=t.exports=function(t){this.scAudio=t,this.listenTime=0,this.currentTime=0,this.scAudio.on(a.SEEK,i,this).on(a.PLAY_START,o,this).on(a.PAUSE,r,this)},s.prototype={constructor:s,getListenTime:function(){return this.listenTime+this.scAudio.currentTime()-this.currentTime}}},function(t,e){var n={CREATED:"created",STATE_CHANGE:"state-change",DESTROYED:"destroyed",PLAY:"play",PLAY_START:"play-start",PLAY_RESUME:"play-resume",METADATA:"metadata",PAUSE:"pause",FINISH:"finish",RESET:"reset",SEEK:"seek",SEEKED:"seeked",GEO_BLOCKED:"geo_blocked",BUFFERRING_START:"buffering_start",BUFFERRING_END:"buffering_end",FLASH_NOT_LOADED:"flash_not_loaded",FLASH_BLOCK:"flash_blocked",FLASH_UNBLOCK:"flash_unblocked",AUDIO_ERROR:"audio_error",TIME:"time",NO_STREAMS:"no_streams",STREAMS:"streams",NO_PROTOCOL:"no_protocol",NO_CONNECTION:"no_connection",REGISTERED:"registered",ONLINE:"online",OFFLINE:"offline"};t.exports=n},function(t,e,n){function i(){return this.scAudio.controller?this.controller?void m.warn("(%s) Setup was called while it was already initialized (returned with a no-op)",this.scAudio.getId()):(m("(%s) Initialized",this.scAudio.getId()),this.controller=this.scAudio.controller,this.protocol=this.scAudio.streamInfo.protocol,void(this.host=S.getUrlHost(this.scAudio.streamInfo.url))):void m.warn("Can´t initialize when controller is null")}function r(){this.controller&&(m("(%s) Reset",this.scAudio.getId()),this.controller=this.protocol=this.host=null,this.timeToPlayMeasured=!1)}function o(t){var e=this.scAudio.getAudioManagerStates();t===e.LOADING?this.timeToPlayMeasured&&f.call(this):A.isNull(this.bufferingStartTime)||d.call(this)}function s(){this.metadataLoadStartTime=Date.now()}function a(){return A.isNull(this.metadataLoadStartTime)?void m.warn("(%s) onMetadataEnd was called without onMetadataStart being called before.",this.scAudio.getId()):(this.log({type:"metadata",latency:Date.now()-this.metadataLoadStartTime}),void(this.metadataLoadStartTime=null))}function u(){this.playClickTime=Date.now()}function h(){if(!this.timeToPlayMeasured){if(A.isNull(this.playClickTime))return void m.warn("(%s) onPlayResume was called without onPlayStart being called before.",this.scAudio.getId());this.log({type:"play",latency:Date.now()-this.playClickTime}),this.playClickTime=null,this.timeToPlayMeasured=!0}}function c(){this.scAudio.isPaused()||(this.seekStartTime=Date.now())}function l(){if(!this.scAudio.isPaused()){if(A.isNull(this.seekStartTime))return void m.warn("(%s) onSeekEnd was called without onSeekStart being called before.",this.scAudio.getId());this.log({type:"seek",latency:Date.now()-this.seekStartTime}),this.seekStartTime=null}}function f(){this.bufferingStartTime||(this.bufferingStartTime=Date.now())}function d(){return A.isNull(this.bufferingStartTime)?void m.warn("(%s) onBufferingEnd was called without onBufferingStart being called before.",this.scAudio.getId()):(p.call(this),void(this.bufferingStartTime=null))}function p(){A.isNull(this.bufferingStartTime)||(A.isNull(this.bufferingTimeAccumulated)&&(this.bufferingTimeAccumulated=0),this.bufferingTimeAccumulated+=Date.now()-this.bufferingStartTime)}function g(){p.call(this),A.isNull(this.bufferingTimeAccumulated)||(this.log({type:"buffer",latency:this.bufferingTimeAccumulated}),this.bufferingStartTime=this.bufferingTimeAccumulated=null)}var _,m,y=n(9),v=n(7),E=n(10),S=n(12),A=n(13);_=t.exports=function(t,e){this.scAudio=t,this.logFn=e,this.controller=null,this.reset(),m=m||y(t.options.debug,"audioperf"),t.on(v.CREATED,i,this).on(v.RESET,r,this).on(v.DESTROYED,r,this).on(v.SEEK,c,this).on(v.SEEKED,l,this).on(v.PLAY,u,this).on(v.PLAY_START,s,this).on(v.PLAY_RESUME,h,this).on(v.PAUSE,g,this).on(v.FINISH,g,this).on(v.STATE_CHANGE,o,this).on(v.METADATA,a,this)},A.extend(_.prototype,E,{constructor:_,log:function(t){return this.controller?(A.extend(t,{protocol:this.protocol,host:this.host,playertype:this.controller.getType()}),m("(%s) %s latency: %d protocol: %s host: %s playertype: %s",this.scAudio.getId(),t.type,t.latency,t.protocol,t.host,t.playertype),void this.logFn(t)):void m.warn("(%s) Monitor log was called while controller is null (returned with a no-op)",this.scAudio.getId())},reset:function(){this.bufferingStartTime=this.bufferingTimeAccumulated=this.playClickTime=this.seekStartTime=this.metadataLoadStartTime=null,this.timeToPlayMeasured=!1}})},function(t,e){function n(){function t(t,n){for(var i,r=arguments.length,o=Array(r>2?r-2:0),s=2;r>s;s++)o[s-2]=arguments[s];"string"==typeof n?n=" "+n:(o.unshift(n),n=""),(i=window.console)[t].apply(i,[e()+" |"+c+"%c"+n].concat(l,o))}function e(){var t=new Date,e=null===h?0:t-h;return h=+t,"%c"+r(t.getHours())+":"+r(t.getMinutes())+":"+r(t.getSeconds())+"."+i(t.getMilliseconds(),"0",3)+"%c (%c"+i("+"+e+"ms"," ",8)+"%c)"}var n=arguments.length<=0||void 0===arguments[0]?!0:arguments[0],o=arguments.length<=1||void 0===arguments[1]?"":arguments[1];if(!n)return s;var h=null,c=a(o),l=["color: green","color: grey","color: blue","color: grey",u(o),""],f=t.bind(null,"log");return f.log=f,["info","warn","error"].forEach(function(e){f[e]=t.bind(null,e)}),f}function i(t,e,n){return o(e,n-(""+t).length)+t}function r(t){return i(t,"0",2)}function o(t,e){return e>0?new Array(e+1).join(t):""}function s(){}function a(t){return t?"%c"+t:"%c"}t.exports=n,s.log=s.info=s.warn=s.error=s;var u=function(){var t=["#51613C","#447848","#486E5F","#787444","#6E664E"],e=0;return function(n){return n?"background-color:"+t[e++%t.length]+";color:#fff;border-radius:3px;padding:2px 4px;font-family:sans-serif;text-transform:uppercase;font-size:9px;margin:0 4px":""}}()},function(t,e,n){t.exports=n(11)},function(t,e,n){!function(){function n(){return{keys:Object.keys||function(t){if("object"!=typeof t&&"function"!=typeof t||null===t)throw new TypeError("keys() called on a non-object");var e,n=[];for(e in t)t.hasOwnProperty(e)&&(n[n.length]=e);return n},uniqueId:function(t){var e=++a+"";return t?t+e:e},has:function(t,e){return o.call(t,e)},each:function(t,e,n){if(null!=t)if(r&&t.forEach===r)t.forEach(e,n);else if(t.length===+t.length)for(var i=0,o=t.length;o>i;i++)e.call(n,t[i],i,t);else for(var s in t)this.has(t,s)&&e.call(n,t[s],s,t)},once:function(t){var e,n=!1;return function(){return n?e:(n=!0,e=t.apply(this,arguments),t=null,e)}}}}var i,r=Array.prototype.forEach,o=Object.prototype.hasOwnProperty,s=Array.prototype.slice,a=0,u=n();i={on:function(t,e,n){if(!c(this,"on",t,[e,n])||!e)return this;this._events||(this._events={});var i=this._events[t]||(this._events[t]=[]);return i.push({callback:e,context:n,ctx:n||this}),this},once:function(t,e,n){if(!c(this,"once",t,[e,n])||!e)return this;var i=this,r=u.once(function(){i.off(t,r),e.apply(this,arguments)});return r._callback=e,this.on(t,r,n)},off:function(t,e,n){var i,r,o,s,a,h,l,f;if(!this._events||!c(this,"off",t,[e,n]))return this;if(!t&&!e&&!n)return this._events={},this;for(s=t?[t]:u.keys(this._events),a=0,h=s.length;h>a;a++)if(t=s[a],o=this._events[t]){if(this._events[t]=i=[],e||n)for(l=0,f=o.length;f>l;l++)r=o[l],(e&&e!==r.callback&&e!==r.callback._callback||n&&n!==r.context)&&i.push(r);i.length||delete this._events[t]}return this},trigger:function(t){if(!this._events)return this;var e=s.call(arguments,1);if(!c(this,"trigger",t,e))return this;var n=this._events[t],i=this._events.all;return n&&l(n,e),i&&l(i,arguments),this},stopListening:function(t,e,n){var i=this._listeners;if(!i)return this;var r=!e&&!n;"object"==typeof e&&(n=this),t&&((i={})[t._listenerId]=t);for(var o in i)i[o].off(e,n,this),r&&delete this._listeners[o];return this}};var h=/\s+/,c=function(t,e,n,i){if(!n)return!0;if("object"==typeof n){for(var r in n)t[e].apply(t,[r,n[r]].concat(i));return!1}if(h.test(n)){for(var o=n.split(h),s=0,a=o.length;a>s;s++)t[e].apply(t,[o[s]].concat(i));return!1}return!0},l=function(t,e){var n,i=-1,r=t.length,o=e[0],s=e[1],a=e[2];switch(e.length){case 0:for(;++i<r;)(n=t[i]).callback.call(n.ctx);return;case 1:for(;++i<r;)(n=t[i]).callback.call(n.ctx,o);return;case 2:for(;++i<r;)(n=t[i]).callback.call(n.ctx,o,s);return;case 3:for(;++i<r;)(n=t[i]).callback.call(n.ctx,o,s,a);return;default:for(;++i<r;)(n=t[i]).callback.apply(n.ctx,e)}},f={listenTo:"on",listenToOnce:"once"};u.each(f,function(t,e){i[e]=function(e,n,i){var r=this._listeners||(this._listeners={}),o=e._listenerId||(e._listenerId=u.uniqueId("l"));return r[o]=e,"object"==typeof n&&(i=this),e[t](n,i,this),this}}),i.bind=i.on,i.unbind=i.off,i.mixin=function(t){var e=["on","once","off","trigger","stopListening","listenTo","listenToOnce","bind","unbind"];return u.each(e,function(e){t[e]=this[e]},this),t},"undefined"!=typeof t&&t.exports&&(e=t.exports=i),e.BackboneEvents=i}(this)},function(t,e){var n={getUrlParams:function(t){var e={},n=t.indexOf("?");return n>-1&&t.substr(n+1).split("&").forEach(function(t){var n=t.split("=");e[n[0]]=n[1]}),e},getUrlHost:function(t){var e,n=t.split("//");return e=n[0]===t?n[0].split("/")[0]:n[1]?n[1].split("/")[0]:""}};t.exports=n},function(t,e){var n={extend:function(t){var e=Array.prototype.slice.call(arguments,1);return e.forEach(function(e){if(e)for(var n in e)e.hasOwnProperty(n)&&(t[n]=e[n])}),t},each:function(t,e,n){Object.keys(t).forEach(function(i){e.call(n||null,t[i],i)})},without:function(t,e){var n=t.indexOf(e);n>-1&&t.splice(n,1)},result:function(t){var e=t;return n.isFunction(e)&&(e=t()),e},isFunction:function(t){return"function"==typeof t},after:function(t,e){return function(){return--t<1?e.apply(this,arguments):void 0}},isNull:function(t){return null===t},once:function(t){var e,n=!1;return function(){return n?e:(n=!0,void(e=t.apply(this,arguments)))}}};t.exports=n},function(t,e){var n={AAC:"aac",MP3:"mp3",OGG:"ogg",OPUS:"opus",WAV:"wav"};t.exports=n},function(t,e){var n={HTTP:"http",RTMP:"rtmp",HLS:"hls"};t.exports=n},function(t,e,n){function i(t){return h.supportsMediaSourceExtensions()&&t.mediaSourceEnabled&&(h.isChrome()&&h.getChromeVersion()>=35||h.isFirefox()&&t.mseFirefox||h.isSafari()&&t.mseSafari)}function r(t){return function(e){var n=!1;switch(e){case u.RTMP:n=h.supportsFlash();break;case u.HTTP:n=h.supportsHTML5Audio()||h.supportsFlash();break;case u.HLS:n=i(t)}return n}}function o(t){return h.isSafari()||h.isFirefox()?[u.HLS,u.HTTP,u.RTMP]:t}function s(t){t.protocols=o(t.protocols).filter(r(t))}var a,u=n(15),h=n(17);a={prioritizeAndFilter:s},t.exports=a},function(t,e){function n(t){return t.test(window.navigator.userAgent.toLowerCase())}function i(t,e){try{return window.navigator.userAgent.toLowerCase().match(t)[e]}catch(n){return null}}function r(){try{return parseInt(i(/chrom(e|ium)\/([0-9]+)\./,2),10)}catch(t){return NaN}}function o(){return!h()&&n(/safari/)}function s(){return o()&&n(/version\/7\.1/)}function a(){return o()&&n(/version\/8/)&&!n(/version\/80/)}function u(){return o()&&n(/version\/9\./)}function h(){return n(/chrom(e|ium)/)}function c(){return n(/firefox/)}function l(){return!!window.MediaSource&&(window.MediaSource.isTypeSupported("audio/mpeg")||window.MediaSource.isTypeSupported("audio/mp4"))}function f(){try{return window.hasOwnProperty("Audio")&&!!(new window.Audio).canPlayType("audio/mpeg")}catch(t){return!1}}function d(){try{var t=o()&&n(/version\/5\.0/),e=window.hasOwnProperty("Audio")&&(!!(new window.Audio).canPlayType('audio/x-mpegURL; codecs="mp3"')||!!(new window.Audio).canPlayType('vnd.apple.mpegURL; codecs="mp3"'));return!t&&e}catch(i){return!1}}function p(){return _(g())>=y}function g(){var t,e,n,i;if("undefined"!=typeof window.ActiveXObject)try{i=new window.ActiveXObject("ShockwaveFlash.ShockwaveFlash"),i&&(t=i.GetVariable("$version"))}catch(r){t=null}else window.navigator&&window.navigator.plugins&&window.navigator.plugins.length>0&&(n="application/x-shockwave-flash",e=window.navigator.mimeTypes,e&&e[n]&&e[n].enabledPlugin&&e[n].enabledPlugin.description&&(t=e[n].enabledPlugin.description));return t}function _(t){if(!t)return 0;var e=t.match(/\d\S+/)[0].replace(/,/g,".").split(".");return parseFloat([e[0],e[1]].join("."))||0}var m,y=9;m={flashPlugin:g,isSafari:o,isSafari71:s,isSafari8:a,isSafari9:u,isChrome:h,getChromeVersion:r,isFirefox:c,supportsNativeHLSAudio:d,supportsHTML5Audio:f,supportsFlash:p,supportsMediaSourceExtensions:l},t.exports=m},function(t,e,n){function i(t){var e=f.getUrlHost(t);return p.every(function(t){return 0!==e.indexOf(t)})}function r(t,e){return!(t===c.HLS&&!i(e))}function o(t,e){if(!t)return!1;var n=t.issuedAt+s(t.protocol,t.duration);return a(t.protocol)?Date.now()+t.duration-(e||0)<n:Date.now()<n}function s(t,e){var n=a(t);return g+(n?l.result(e):0)}function a(t){return t===c.HTTP||t===c.HLS}function u(t,e){function n(t){return-1*t}function i(t,e){return Math.abs(e-m)-Math.abs(t-m)}var o,s,a,u,h,c,f,d,p,g,_={},m=e.maxBitrate,y=e.protocols,v=e.extensions;for(l.each(t,function(t,e){var n=e.split("_"),i=n[0],r=n[1],o=n[2];_[i]=_[i]||{},_[i][r]=_[i][r]||{},_[i][r][o]=t}),h=0,c=y.length;c>h;++h)for(u=y[h],d=0,p=v.length;p>d;++d)if(f=v[d],_[u]&&_[u][f]){if(o=Object.keys(_[u][f]).map(Number).sort(n),s=m===1/0,a=m===-(1/0),m=s||a?o[s?"pop":"shift"]():o.sort(i).pop(),g=_[u][f][m],!r(u,g))continue;return{url:g,bitrate:m,protocol:u,extension:f,issuedAt:Date.now(),duration:l.result(e.duration)}}return null}var h,c=n(15),l=n(13),f=n(12),d=.9,p=[],g=Math.floor(12e4*d);h={choosePreferredStream:u,streamValidForPlayingFrom:o},t.exports=h},function(t,e,n){var i,r,o=n(7),s=n(13),a={Linear:0,EaseOut:1,EaseInOut:2},u=600,h=25;t.exports=i={},i.VolumeAutomator=r=function(t){this.scAudio=t,this.fadeOutAlgo=this.scAudio.options.fadeOutAlgo,this.fadeOutTimer=null,this.initialVolume=void 0,this.scAudio.options.fadeOutOnPause&&r.isSupported()&&(this.scAudio.on(o.PLAY,this.onPlay,this),this.scAudio.registerHook("pause",this.hookPause.bind(this)))},i.VolumeAutomator.isSupported=function(){var t=new window.Audio,e=t.volume,n=0===e?1:e/2;return t.volume=n,t.volume===n},i.VolumeAutomator.Algos=a,s.extend(r.prototype,{fadeOutAndPause:function(){var t=Date.now(),e=function(){var n,i=(Date.now()-t)/u,r=this.initialVolume;if(i>=1)this.scAudio.controller&&this.scAudio.controller.pause(),this.cancelFadeout();else{switch(this.fadeOutAlgo){case a.Linear:n=r*(1-i);break;case a.EaseOut:n=r*(1/(10*(i+.1))-.05);break;case a.EaseInOut:default:n=r*(Math.cos(i*Math.PI)/2+.5)}this.scAudio.setVolume(n),window.clearTimeout(this.fadeOutTimer),this.fadeOutTimer=window.setTimeout(e,h)}}.bind(this);this.initialVolume=this.scAudio.getVolume(),e()},cancelFadeout:function(){this.fadeOutTimer&&(window.clearTimeout(this.fadeOutTimer),this.fadeOutTimer=null,this.scAudio.setVolume(this.initialVolume),this.initialVolume=void 0)},hookPause:function(t){return this.fadeOutAndPause(),!1},onPlay:function(){this.cancelFadeout()}})}])},function(t,e){}])});
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -60461,7 +60547,288 @@ var i=t.exports=n(4),r=Array.prototype.slice;i.extend({Deferred:function(t){var 
 
 })));
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = require('three');
+
+var THREE = _interopRequireWildcard(_three);
+
+var _canvasFit = require('canvas-fit');
+
+var _canvasFit2 = _interopRequireDefault(_canvasFit);
+
+var _shaders = require('./shaders.js');
+
+var shaders = _interopRequireWildcard(_shaders);
+
+var _RenderBuffer = require('./RenderBuffer.js');
+
+var _RenderBuffer2 = _interopRequireDefault(_RenderBuffer);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AlbumVisual = function () {
+
+  /**
+   * constructor - Constructor for AlbumViewer
+   *
+   * @param  {Array<String>} trackImagePaths Path to image for each song
+   */
+  function AlbumVisual(trackImagePaths, container) {
+    _classCallCheck(this, AlbumVisual);
+
+    this.container = container;
+    this.loadImages(trackImagePaths);
+  }
+
+  _createClass(AlbumVisual, [{
+    key: 'loadImages',
+    value: function loadImages(trackImagePaths) {
+      this.images = [];
+      var loader = new THREE.TextureLoader();
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = trackImagePaths[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var imagePath = _step.value;
+
+          var image = loader.load(imagePath);
+          this.images.push(image);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'sceneSetup',
+    value: function sceneSetup() {
+      this.scene = new THREE.Scene();
+      this.renderSize = new THREE.Vector2(this.container.clientWidth, this.container.clientHeight);
+
+      this.camera = new THREE.OrthographicCamera(this.renderSize.x / -2, this.renderSize.x / 2, this.renderSize.y / 2, this.renderSize.y / -2, 1, 1000);
+      this.camera.position.z = 2;
+
+      this.renderer = new THREE.WebGLRenderer({
+        preserveDrawingBuffer: true,
+        antialias: true,
+        alpha: true
+      });
+
+      this.renderer.setSize(this.renderSize.x, this.renderSize.y);
+      this.container.appendChild(this.renderer.domElement);
+
+      this.frame = 0;
+      this.started = false;
+    }
+
+    /**
+     * setupTextures - Initiate all the textures for the viewer here.
+     * For reuse we could treat AlbumView like an abstract class and have
+     * child classes override this method.
+     */
+
+  }, {
+    key: 'setupBuffers',
+    value: function setupBuffers() {
+      var _buffers;
+
+      this.buffers = [];
+
+      var imageTexture = this.images[0];
+
+      var mainPass = new _RenderBuffer2.default(this.renderer, shaders.main, null, { iChannel1: { type: 't', value: imageTexture } }, this.renderSize, this.camera, true);
+
+      var gaussianPassHorizontal = new _RenderBuffer2.default(this.renderer, shaders.gaussianHorizontal, null, { iChannel0: { type: 't', value: mainPass.getTexture() } }, this.renderSize, this.camera);
+
+      var gaussianPassVertical = new _RenderBuffer2.default(this.renderer, shaders.gaussianVertical, null, { iChannel0: { type: 't', value: gaussianPassHorizontal.getTexture() } }, this.renderSize, this.camera);
+
+      this.finalPass = new _RenderBuffer2.default(this.renderer, shaders.final, null, {
+        iChannel0: { type: 't', value: gaussianPassVertical.getTexture() },
+        iChannel1: { type: 't', value: imageTexture }
+      }, this.renderSize, this.camera, false, // isFeedback
+      true // renderToScreen
+      );
+
+      (_buffers = this.buffers).push.apply(_buffers, [mainPass, gaussianPassHorizontal, gaussianPassVertical, this.finalPass]);
+    }
+  }, {
+    key: 'updateMouse',
+    value: function updateMouse(mouse) {
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.buffers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var buffer = _step2.value;
+
+          buffer.updateUniforms({
+            iMouse: { type: 'v3', value: mouse }
+          });
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'updateRenderSize',
+    value: function updateRenderSize(resolution) {
+      (0, _canvasFit2.default)(this.renderer.domElement, this.container);
+      this.renderSize = resolution;
+      this.renderer.setSize(this.renderSize.x, this.renderSize.y);
+
+      this.camera.aspect = this.renderSize.x / this.renderSize.y;
+      this.camera.updateProjectionMatrix();
+
+      this.finalPass.updateResolution(resolution);
+    }
+  }, {
+    key: 'updateTimeAndFrame',
+    value: function updateTimeAndFrame() {
+      if (this.started) this.frame += 1;
+      var time = window.performance.now() / 1000;
+
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = this.buffers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var buffer = _step3.value;
+
+          buffer.updateUniforms({
+            iFrame: { type: 'i', value: this.frame },
+            iGlobalTime: { type: 'f', value: time }
+          });
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'onTrackChanged',
+    value: function onTrackChanged(trackIndex) {
+      this.started = true;
+      this.frame = 0;
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
+
+      try {
+        for (var _iterator4 = this.buffers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          var buffer = _step4.value;
+
+          buffer.updateUniforms({
+            iChannel1: { type: 't', value: this.images[trackIndex] },
+            iFrame: { type: 'i', value: this.frame }
+          });
+        }
+      } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+            _iterator4.return();
+          }
+        } finally {
+          if (_didIteratorError4) {
+            throw _iteratorError4;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      var _this = this;
+
+      // Schedule the next frame.
+      requestAnimationFrame(function () {
+        _this.update();
+      });
+
+      var _iteratorNormalCompletion5 = true;
+      var _didIteratorError5 = false;
+      var _iteratorError5 = undefined;
+
+      try {
+        for (var _iterator5 = this.buffers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var buffer = _step5.value;
+
+          buffer.render();
+        }
+      } catch (err) {
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+            _iterator5.return();
+          }
+        } finally {
+          if (_didIteratorError5) {
+            throw _iteratorError5;
+          }
+        }
+      }
+
+      this.updateTimeAndFrame();
+    }
+  }]);
+
+  return AlbumVisual;
+}();
+
+exports.default = AlbumVisual;
+
+},{"./RenderBuffer.js":9,"./shaders.js":12,"canvas-fit":1,"three":7}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -60485,16 +60852,18 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var RenderBuffer = function () {
-  function RenderBuffer(renderer, fragShader, vertShader, channels, resolution) {
+  function RenderBuffer(renderer, fragmentShader, vertexShader, uniforms, resolution, camera, isFeedback, renderToScreen) {
     _classCallCheck(this, RenderBuffer);
 
     this.renderer = renderer;
-    this.vertShader = vertShader;
-    this.fragShader = fragShader;
-    this.channels = channels;
+    this.vertexShader = vertexShader;
+    this.fragmentShader = fragmentShader;
+    this.uniforms = uniforms;
     this.resolution = resolution;
-    this.camera = new THREE.OrthographicCamera(resolution.x / -2, resolution.x / 2, resolution.y / 2, resolution.y / -2, 1, 1000);
-    this.camera.position.z = 2;
+    this.camera = camera;
+    this.isFeedback = isFeedback || false;
+    this.renderToScreen = renderToScreen || false;
+    this.init();
   }
 
   _createClass(RenderBuffer, [{
@@ -60505,55 +60874,75 @@ var RenderBuffer = function () {
       this.bufferTexture = new THREE.WebGLRenderTarget(this.resolution.x, this.resolution.y, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
       this.bufferTexture.texture.type = THREE.FloatType;
 
-      var uniforms = {
+      var defaultUniforms = {
         iResolution: { type: 'v2', value: this.resolution },
         iFrame: { type: 'i', value: 0 },
         iGlobalTime: { type: 'f', value: 0.0 },
         iMouse: { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) }
       };
 
-      for (var i = 0; i < this.channels.length; i++) {
-        uniforms['iChannel' + i] = { type: 't', value: this.channels[i] };
+      this.uniforms = _lodash2.default.assign(defaultUniforms, this.uniforms);
+
+      if (this.isFeedback) {
+        this.bufferTexture2 = new THREE.WebGLRenderTarget(this.resolution.x, this.resolution.y, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+        this.bufferTexture2.texture.type = THREE.FloatType;
+
+        this.uniforms['iChannel0'] = { type: 't', value: this.bufferTexture.texture };
       }
 
       this.bufferMaterial = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        fragmentShader: this.fragShader,
-        vertexShader: this.vertShader
+        uniforms: this.uniforms,
+        fragmentShader: this.fragmentShader
       });
 
-      var plane = new THREE.PlaneBufferGeometry(this.resolution.x, this.resolution.height);
-      var bufferObject = new THREE.Mesh(plane, this.bufferMaterial);
+      if (this.vertexShader) this.bufferMaterial.vertexShader = this.vertexShader;
 
-      this.bufferScene.add(bufferObject);
+      var plane = new THREE.PlaneBufferGeometry(this.resolution.x, this.resolution.y);
+      this.bufferObject = new THREE.Mesh(plane, this.bufferMaterial);
+      this.bufferScene.add(this.bufferObject);
     }
   }, {
-    key: 'update',
-    value: function update(frame, mouse, resolution) {
-      this.bufferMaterial.uniforms.iFrame.value = frame;
-      this.bufferMaterial.uniforms.iMouse.value = mouse;
-      this.bufferMaterial.uniforms.iResolution.value = resolution;
+    key: 'swap',
+    value: function swap() {
+      if (!this.isFeedback) return;
+      var swap = this.bufferTexture;
+      this.bufferTexture = this.bufferTexture2;
+      this.bufferTexture2 = swap;
+      this.uniforms.iChannel0.value = this.bufferTexture.texture;
     }
   }, {
-    key: 'renderToBuffer',
-    value: function renderToBuffer() {
-      this.renderer.render(this.bufferScene, this.camera, this.bufferTexture, true);
+    key: 'render',
+    value: function render() {
+      var texture = this.isFeedback ? this.bufferTexture2 : this.bufferTexture;
+      if (this.renderToScreen) {
+        this.renderer.render(this.bufferScene, this.camera);
+      } else {
+        this.renderer.render(this.bufferScene, this.camera, texture, true);
+      }
+      if (this.isFeedback) this.swap();
     }
   }, {
-    key: 'renderToScreen',
-    value: function renderToScreen() {
-      this.renderer.render(this.bufferScene, this.camera);
+    key: 'updateResolution',
+    value: function updateResolution(resolution) {
+      this.resolution = resolution;
+
+      this.updateUniforms({
+        iResolution: { type: 'v2', value: resolution }
+      });
     }
   }, {
     key: 'updateUniforms',
     value: function updateUniforms(uniforms) {
-      _lodash2.default.assign(this.bufferMaterial.uniforms, uniforms);
-      console.log(this.bufferMaterial.uniforms);
+      _lodash2.default.assign(this.uniforms, uniforms);
     }
   }, {
     key: 'getTexture',
     value: function getTexture() {
-      return this.bufferTexture.texture;
+      if (this.isFeedback) {
+        return this.bufferTexture2.texture;
+      } else {
+        return this.bufferTexture.texture;
+      }
     }
   }]);
 
@@ -60562,242 +60951,7 @@ var RenderBuffer = function () {
 
 exports.default = RenderBuffer;
 
-},{"lodash":3,"three":5}],7:[function(require,module,exports){
-'use strict';
-
-var _three = require('three');
-
-var THREE = _interopRequireWildcard(_three);
-
-var _shaders = require('./shaders.js');
-
-var shaders = _interopRequireWildcard(_shaders);
-
-var _glslify = require('glslify');
-
-var _glslify2 = _interopRequireDefault(_glslify);
-
-var _domready = require('domready');
-
-var _domready2 = _interopRequireDefault(_domready);
-
-var _scPlayer = require('./scPlayer.js');
-
-var _scPlayer2 = _interopRequireDefault(_scPlayer);
-
-var _RenderBuffer = require('./RenderBuffer.js');
-
-var _RenderBuffer2 = _interopRequireDefault(_RenderBuffer);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var scene = void 0;
-var camera = void 0;
-var renderSize = void 0;
-var renderer = void 0;
-var clock = void 0;
-var mouse = void 0;
-var images = void 0;
-var scPlayer = void 0;
-
-function sceneSetup() {
-
-  var imageFiles = ['src/images/album/2. The Roman Call.jpg', 'src/images/album/3. Lightning By The Sea.jpg', 'src/images/album/4. Fantom Pain.jpg', 'src/images/album/5. Nina.jpg', 'src/images/album/6. Force Of Evil.jpg', 'src/images/album/7. Purlieu.jpg'];
-
-  images = [];
-  var loader = new THREE.TextureLoader();
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = imageFiles[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var imageFile = _step.value;
-
-      var image = loader.load(imageFile);
-      images.push(image);
-    }
-
-    //This is the basic scene setup
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  scene = new THREE.Scene();
-  var width = window.innerWidth;
-  var height = window.innerHeight;
-
-  clock = new THREE.Clock();
-
-  mouse = new THREE.Vector3(0.0, 0.0, 0.0);
-  document.onmousemove = onMouseMove;
-  document.onmousedown = onMouseDown;
-  document.onmouseup = onMouseUp;
-
-  //Note that we're using an orthographic camera here rather than a prespective
-  camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 1000);
-  camera.position.z = 2;
-
-  renderer = new THREE.WebGLRenderer({
-    preserveDrawingBuffer: true,
-    antialias: true,
-    alpha: true
-  });
-  renderer.setSize(width, height);
-  var frame = document.getElementById("frame");
-  frame.appendChild(renderer.domElement);
-  // document.body.appendChild( renderer.domElement );
-}
-
-function setRenderSize() {
-  var frame = document.getElementById("frame");
-  renderSize = new Vector2(frame.innerWidth, frame.innerHeight);
-}
-
-function onMouseMove(event) {
-  event.preventDefault();
-  mouse.x = event.clientX / window.innerWidth * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-}
-
-function onMouseDown(event) {
-  event.preventDefault();
-  mouse.z = 1.0;
-}
-
-function onMouseUp(event) {
-  event.preventDefault();
-  mouse.z = 0.0;
-}
-
-var fragmentShader = shaders.main;
-var fragmentShader2 = shaders.final;
-var gaussianBlurHorizontal = shaders.gaussianHorizontal;
-var gaussianBlurVertical = shaders.gaussianVertical;
-
-var vertexShader = '\nprecision highp float;\n#define GLSLIFY 1\nvarying vec2 vUv;\nvoid main()\n{\n  vUv = uv;\n\n  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * mvPosition;\n}\n';
-
-var bufferScene = void 0;
-var bufferScene2 = void 0;
-var bufferScene3 = void 0;
-var textureA = void 0;
-var textureB = void 0;
-var textureC = void 0;
-var textureD = void 0;
-var bufferMaterial = void 0;
-var bufferMaterial2 = void 0;
-var bufferMaterial3 = void 0;
-var plane = void 0;
-var bufferObject = void 0;
-var bufferObject2 = void 0;
-var bufferObject3 = void 0;
-var finalMaterial = void 0;
-var quad = void 0;
-var uniforms = void 0;
-
-var gaussianPassHorizontal = void 0;
-var gaussianPassVertical = void 0;
-var finalPass = void 0;
-
-function bufferTextureSetup(image) {
-  // Create buffer scene
-  bufferScene = new THREE.Scene();
-
-  // //Create 2 buffer textures
-  textureA = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
-  textureB = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
-  textureA.type = THREE.FloatType;
-  textureB.type = THREE.FloatType;
-
-  // let imageTexture = THREE.ImageUtils.loadTexture( "./src/images/ali_knockout.jpg" );
-  // imageTexture.wrapS = THREE.RepeatWrapping;
-  // imageTexture.wrapT = THREE.RepeatWrapping;
-  var imageTexture = images[0];
-
-  uniforms = {
-    iChannel0: { type: "t", value: textureA.texture },
-    iChannel1: { type: "t", value: imageTexture },
-    iFrame: { type: "i", value: 0 },
-    iGlobalTime: { type: "f", value: 0.0 },
-    iResolution: { type: "v2", value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-    iMouse: { type: "v3", value: mouse }
-  };
-
-  //Pass textureA to shader
-  bufferMaterial = new THREE.ShaderMaterial({
-    uniforms: uniforms,
-    fragmentShader: fragmentShader,
-    vertexShader: vertexShader
-  });
-
-  plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
-  bufferObject = new THREE.Mesh(plane, bufferMaterial);
-  bufferScene.add(bufferObject);
-
-  gaussianPassHorizontal = new _RenderBuffer2.default(renderer, gaussianBlurHorizontal, vertexShader, [textureB.texture], new THREE.Vector2(window.innerWidth, window.innerHeight));
-  gaussianPassHorizontal.init();
-
-  gaussianPassVertical = new _RenderBuffer2.default(renderer, gaussianBlurVertical, vertexShader, [gaussianPassHorizontal.getTexture()], new THREE.Vector2(window.innerWidth, window.innerHeight));
-  gaussianPassVertical.init();
-
-  finalPass = new _RenderBuffer2.default(renderer, fragmentShader2, vertexShader, [gaussianPassVertical.getTexture(), imageTexture], new THREE.Vector2(window.innerWidth, window.innerHeight));
-  finalPass.init();
-}
-
-var startShader = false;
-
-function update() {
-  // Schedule the next frame.
-  requestAnimationFrame(update);
-
-  // Draw to textureB to bufferScene
-  renderer.render(bufferScene, camera, textureB, true);
-
-  // Swap textureA and B
-  var t = textureA;
-  textureA = textureB;
-  textureB = t;
-  bufferMaterial.uniforms.iChannel0.value = textureA.texture;
-
-  if (startShader) bufferMaterial.uniforms.iFrame.value += 1;
-  bufferMaterial.uniforms.iGlobalTime.value = window.performance.now() / 1000;
-  bufferMaterial.uniforms.iMouse.value = mouse;
-  finalPass.updateUniforms({ iMouse: { type: 'v3', value: mouse } });
-  gaussianPassHorizontal.renderToBuffer();
-  gaussianPassVertical.renderToBuffer();
-  finalPass.renderToScreen();
-}
-
-function updateImageTextureForTrack(trackIndex, player) {
-  if (!images[trackIndex]) return;
-  startShader = true;
-  bufferMaterial.uniforms.iFrame.value = 0;
-  bufferMaterial.uniforms.iChannel1.value = images[trackIndex];
-  finalPass.updateUniforms({ iChannel1: { type: 't', value: images[trackIndex] } });
-}
-
-(0, _domready2.default)(function () {
-  sceneSetup();
-  bufferTextureSetup();
-  update();
-  scPlayer = new _scPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
-  scPlayer.init();
-});
-
-},{"./RenderBuffer.js":6,"./scPlayer.js":8,"./shaders.js":9,"domready":1,"glslify":2,"three":5}],8:[function(require,module,exports){
+},{"lodash":5,"three":7}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -60842,16 +60996,41 @@ var SCPlayer = function () {
 
       this.bindUIControls();
     }
+  }, {
+    key: 'bindUIControls',
+    value: function bindUIControls() {
+      var _this2 = this;
+
+      // document.getElementById('play').addEventListener('click', (event) => {
+      //   event.preventDefault();
+      //   this.playTrack(this.currentTrackIndex);
+      // });
+      //
+      // document.getElementById('pause').addEventListener('click', (event) => {
+      //   event.preventDefault();
+      //   this.pauseTrack();
+      // });
+
+      document.getElementById('forward').addEventListener('click', function (event) {
+        event.preventDefault();
+        _this2.skipForward();
+      });
+
+      document.getElementById('backward').addEventListener('click', function (event) {
+        event.preventDefault();
+        _this2.skipBackward();
+      });
+    }
 
     // TODO: Handle case of URL being a track
 
   }, {
     key: 'getTrackIDs',
     value: function getTrackIDs() {
-      var _this2 = this;
+      var _this3 = this;
 
       return new _soundcloud2.default.Promise(function (resolve, reject) {
-        _soundcloud2.default.resolve(_this2.albumUrl).then(function (result) {
+        _soundcloud2.default.resolve(_this3.albumUrl).then(function (result) {
           if (result && result.tracks) {
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -60862,7 +61041,7 @@ var SCPlayer = function () {
                 var track = _step.value;
 
                 console.log(track);
-                _this2.trackIDs.push(track.id);
+                _this3.trackIDs.push(track.id);
               }
             } catch (err) {
               _didIteratorError = true;
@@ -60888,7 +61067,7 @@ var SCPlayer = function () {
   }, {
     key: 'playTrack',
     value: function playTrack(trackIndex) {
-      var _this3 = this;
+      var _this4 = this;
 
       var lastTrackIndex = this.currentTrackIndex;
       this.currentTrackIndex = trackIndex;
@@ -60909,17 +61088,17 @@ var SCPlayer = function () {
             player.options.protocols.splice(0, 1);
           }
 
-          _this3.players[trackIndex] = player;
+          _this4.players[trackIndex] = player;
 
-          _this3.players[trackIndex].on('play-start', function (event) {
-            if (event.position == 0) _this3.trackChangeListener(trackIndex);
+          _this4.players[trackIndex].on('play-start', function (event) {
+            if (event.position == 0) _this4.trackChangeListener(trackIndex);
           });
 
-          _this3.players[trackIndex].on('finish', function (event) {
-            _this3.skipForward();
+          _this4.players[trackIndex].on('finish', function (event) {
+            _this4.skipForward();
           });
 
-          _this3.players[trackIndex].play();
+          _this4.players[trackIndex].play();
         });
       }
     }
@@ -60942,31 +61121,6 @@ var SCPlayer = function () {
       this.trackChangeListener(nextTrack);
       this.playTrack(nextTrack);
     }
-  }, {
-    key: 'bindUIControls',
-    value: function bindUIControls() {
-      var _this4 = this;
-
-      document.getElementById('play').addEventListener('click', function (event) {
-        event.preventDefault();
-        _this4.playTrack(_this4.currentTrackIndex);
-      });
-
-      document.getElementById('pause').addEventListener('click', function (event) {
-        event.preventDefault();
-        _this4.pauseTrack();
-      });
-
-      document.getElementById('forward').addEventListener('click', function (event) {
-        event.preventDefault();
-        _this4.skipForward();
-      });
-
-      document.getElementById('backward').addEventListener('click', function (event) {
-        event.preventDefault();
-        _this4.skipBackward();
-      });
-    }
   }]);
 
   return SCPlayer;
@@ -60974,7 +61128,91 @@ var SCPlayer = function () {
 
 exports.default = SCPlayer;
 
-},{"soundcloud":4}],9:[function(require,module,exports){
+},{"soundcloud":6}],11:[function(require,module,exports){
+'use strict';
+
+var _domready = require('domready');
+
+var _domready2 = _interopRequireDefault(_domready);
+
+var _three = require('three');
+
+var _AlbumVisual = require('./AlbumVisual.js');
+
+var _AlbumVisual2 = _interopRequireDefault(_AlbumVisual);
+
+var _SCPlayer = require('./SCPlayer.js');
+
+var _SCPlayer2 = _interopRequireDefault(_SCPlayer);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var container = void 0;
+var trackImagePaths = void 0;
+var albumVisual = void 0;
+var scPlayer = void 0;
+var renderSize = void 0;
+var mouse = void 0;
+
+function setup() {
+  container = document.getElementById('album-container');
+  renderSize = new _three.Vector2(container.clientWidth, container.clientHeight);
+  addListeners();
+
+  trackImagePaths = ['src/images/album/2. The Roman Call.jpg', 'src/images/album/3. Lightning By The Sea.jpg', 'src/images/album/4. Fantom Pain.jpg', 'src/images/album/5. Nina.jpg', 'src/images/album/6. Force Of Evil.jpg', 'src/images/album/7. Purlieu.jpg'];
+
+  albumVisual = new _AlbumVisual2.default(trackImagePaths, container);
+  albumVisual.sceneSetup();
+  albumVisual.setupBuffers();
+  albumVisual.update();
+
+  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
+}
+
+function addListeners() {
+  document.onmousemove = onMouseMove;
+  document.onmousedown = onMouseDown;
+  document.onmouseup = onMouseUp;
+  window.onresize = onResize;
+}
+
+function onMouseMove(event) {
+  if (!mouse) mouse = new _three.Vector3(0);
+  event.preventDefault();
+  mouse.x = event.clientX / renderSize.x * 2 - 1;
+  mouse.y = -(event.clientY / renderSize.y) * 2 + 1;
+  albumVisual.updateMouse(mouse);
+}
+
+function onMouseDown(event) {
+  event.preventDefault();
+  mouse.z = 1.0;
+  albumVisual.updateMouse(mouse);
+}
+
+function onMouseUp(event) {
+  event.preventDefault();
+  mouse.z = 0.0;
+  albumVisual.updateMouse(mouse);
+}
+
+function onResize(event) {
+  renderSize = new _three.Vector2(container.clientWidth, container.clientHeight);
+  albumVisual.updateRenderSize(renderSize);
+}
+
+function updateImageTextureForTrack(trackIndex, player) {
+  if (!trackImagePaths[trackIndex]) return;
+  albumVisual.onTrackChanged(trackIndex);
+}
+
+(0, _domready2.default)(function () {
+  setup();
+  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
+  scPlayer.init();
+});
+
+},{"./AlbumVisual.js":8,"./SCPlayer.js":10,"domready":2,"three":7}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -60990,7 +61228,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /******************************************************************************/
 
-var main = exports.main = '#define GLSLIFY 1\n\n  uniform vec2 iResolution;\n  uniform vec3 iMouse;\n  uniform int iFrame;\n  uniform float iGlobalTime;\n  uniform sampler2D iChannel0;\n  uniform sampler2D iChannel1;\n\n  void main()\n  {\n    // convert uv from screen size to 0 to 1\n    vec2 uv = gl_FragCoord.xy / iResolution.xy;\n    uv = -1.0 + 2.0 * uv;\n\n    // Every 100th frame not the first 100 though\n    // float revert = floor(float(iFrame)/100.) + 1.;\n    // // Every 500th frame this will be 0 for 100 frames\n    // revert = mod(revert, 5.);\n    //\n    // // 500 / 500 = 1 + 1 = 2 -> 2 % 5 = 2\n    // // 4500 / 500 = 9 + 1 = 10 -> 10 % 5 = 0;\n    // // 2000 / 500 = 4 + 1 = 5 -> 5 % 5 = 0;\n    // float unwarp = floor(float(iFrame)/500.) + 1.;\n    // unwarp = mod(unwarp, 5.);\n\n    // Rotation rate based on mouse position\n    float sinFactor = sin((iMouse.x*2.)*0.001);\n    float cosFactor = cos((iMouse.x*2.)*0.001);\n    if (iFrame > 100) {\n        uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);\n    }\n\n    vec4 imagePixel = texture2D(iChannel1, uv*0.5 + 0.5);\n    vec4 bufferPixel = texture2D(iChannel0, uv*0.5 + 0.5);\n\n    float iFrameFloat = float(iFrame);\n    if (iFrame < 100)\n    {\n      // Start out with the original image\n      gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*iFrameFloat);\n    }\n    else if (mod(floor(float(iFrame)/500.) + 1., 5.) < 0.0001)\n    {\n      uv *= 0.998;\n      uv.y += 0.001;\n      vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;\n      r += 0.0001;\n      r = mod(abs(r), vec3(1.0));\n      gl_FragColor = vec4(mix(r, vec3(0.95), smoothstep(0., 500., mod(float(iFrame)+500., 500.)*0.01)), 1.0);\n    }\n    else if (mod(floor(float(iFrame)/100.) + 1., 5.) < 0.0001)\n    {\n      // float smoothf = mod(float(iFrame)+500., 500.);\n      // smoothf = smoothstep(0., 500., smoothf)*0.01;\n      // if (smoothf < 0.005) {\n      //   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n      // } else {\n      //   gl_FragColor = vec4(0., 1., 0., 1.);\n      // }\n      uv *= 0.998;\n      uv.y += 0.001;\n      vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;\n      r += 0.0001;\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(mix(r, imagePixel.rgb, smoothstep(0., 100., mod(float(iFrame)+100., 100.)*0.01)), 1.0);\n    }\n    else\n    {\n      // UVs start at 0.0 and move from -1 to 1\n      uv *= 0.998;\n      uv.y += 0.001;\n      vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;\n\n      // r += 0.001;\n      // r.r += r.g*0.001;\n      // r.g += r.b*0.001;\n      // r.b += r.r*0.001;\n      r.r += (max(r.g*0.001, 0.0001));\n      r.g += (max(r.b*0.001, 0.0001));\n      r.b += (max(r.r*0.001, 0.0001));\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(vec3(r), 1.0);\n    }\n  }\n';
+var main = exports.main = '#define GLSLIFY 1\n\n  uniform vec2 iResolution;\n  uniform vec3 iMouse;\n  uniform int iFrame;\n  uniform float iGlobalTime;\n  uniform sampler2D iChannel0;\n  uniform sampler2D iChannel1;\n\n  void main()\n  {\n    // convert uv from screen size to 0 to 1\n    vec2 uv = gl_FragCoord.xy / iResolution.xy;\n    vec2 coord = uv;\n    uv = -1.0 + 2.0 * uv;\n\n    // Rotation rate based on mouse position\n    float sinFactor = sin((iMouse.x*2.)*0.001);\n    float cosFactor = cos((iMouse.x*2.)*0.001);\n    if (iFrame > 100) {\n        uv = vec2(uv.x, uv.y) * mat2(cosFactor, sinFactor, -sinFactor, cosFactor);\n    }\n\n    vec4 imagePixel = texture2D(iChannel1, uv*0.5 + 0.5);\n    vec4 bufferPixel = texture2D(iChannel0, uv*0.5 + 0.5);\n\n    float iFrameFloat = float(iFrame);\n    if (iFrame < 100)\n    {\n      // Start out with the original image\n      gl_FragColor = mix(vec4(1.0), imagePixel, 0.005*iFrameFloat);\n    }\n    else if (iMouse.z > 0.0001)\n    {\n      gl_FragColor = mix(bufferPixel, vec4(1.0), 0.005);\n    }\n    else if (mod(floor(float(iFrame)/500.) + 1., 5.) < 0.0001)\n    {\n      uv *= 0.998;\n      uv.y += 0.001;\n      vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;\n      r += 0.0001;\n      r = mod(abs(r), vec3(1.0));\n      gl_FragColor = vec4(mix(r, vec3(0.95), smoothstep(0., 500., mod(float(iFrame)+500., 500.)*0.01)), 1.0);\n    }\n    else if (mod(floor(float(iFrame)/100.) + 1., 5.) < 0.0001)\n    {\n      // 2000 / 500 = 4 + 1 = 5 -> 5 % 5 = 0;\n      // 4500 / 500 = 9 + 1 = 10 -> 10 % 5 = 0;\n      uv *= 0.998;\n      uv.y += 0.001;\n      vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;\n      r += 0.0005;\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(mix(r, imagePixel.rgb, smoothstep(0., 100., mod(float(iFrame)+100., 100.)*0.01)), 1.0);\n    }\n    else\n    {\n      // UVs start at 0.0 and move from -1 to 1\n      uv *= 0.998;\n      uv.y += 0.001;\n      vec3 r = texture2D(iChannel0, uv*0.5 + 0.5).rgb;\n\n      r.r += (max(r.g*0.001, 0.0001));\n      r.g += (max(r.b*0.001, 0.0001));\n      r.b += (max(r.r*0.001, 0.0001));\n      r = mod(abs(r), vec3(1.0));\n\n      gl_FragColor = vec4(vec3(r), 1.0);\n    }\n  }\n';
 
 /******************************************************************************/
 
@@ -61004,4 +61242,4 @@ var gaussianHorizontal = exports.gaussianHorizontal = '#define GLSLIFY 1\n\n  ve
 
 var final = exports.final = '\n  precision highp float;\n#define GLSLIFY 1\n\n  uniform vec2 iResolution;\n  uniform int iFrame;\n  uniform vec3 iMouse;\n  uniform sampler2D iChannel0;\n  uniform sampler2D iChannel1;\n\n  void main()\n  {\n    vec2 uv = gl_FragCoord.xy / iResolution.xy;\n    vec4 bufferPixel = texture2D(iChannel0, uv);\n    vec4 imagePixel = texture2D(iChannel1, uv);\n\n    // bufferPixel = vec4(mix(bufferPixel.rgb, vec3(1.0), (iMouse.y+1.)/2.), 1.);\n    // gl_FragColor = texture2D(iChannel1, uv * bufferPixel.rg);\n    // gl_FragColor = bufferPixel;\n    // This makes the warping happen from the center out\n    uv = -1.0 + 2.0 * uv;\n    vec2 scaleCenter = vec2(0.5, 0.5);\n    uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;\n    gl_FragColor = texture2D(iChannel1, uv*0.5+0.5);\n  }\n';
 
-},{"glslify":2}]},{},[7]);
+},{"glslify":4}]},{},[11]);
