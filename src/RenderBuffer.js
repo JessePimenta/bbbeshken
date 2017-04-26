@@ -3,14 +3,16 @@ import _ from 'lodash';
 
 export default class RenderBuffer {
 
-  constructor(renderer, fragShader, vertShader, channels, resolution) {
+  constructor(renderer, fragmentShader, vertexShader, uniforms, resolution, camera, isFeedback, renderToScreen) {
     this.renderer = renderer;
-    this.vertShader = vertShader;
-    this.fragShader = fragShader;
-    this.channels = channels;
+    this.vertexShader = vertexShader;
+    this.fragmentShader = fragmentShader;
+    this.uniforms = uniforms;
     this.resolution = resolution;
-    this.camera = new THREE.OrthographicCamera( resolution.x / - 2, resolution.x / 2, resolution.y / 2, resolution.y / - 2, 1, 1000 );
-    this.camera.position.z = 2;
+    this.camera = camera;
+    this.isFeedback = isFeedback || false;
+    this.renderToScreen = renderToScreen || false;
+    this.init();
   }
 
   init() {
@@ -19,49 +21,69 @@ export default class RenderBuffer {
     this.bufferTexture = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
     this.bufferTexture.texture.type = THREE.FloatType;
 
-    let uniforms = {
+    let defaultUniforms = {
       iResolution: { type: 'v2', value: this.resolution },
       iFrame: { type: 'i', value: 0 },
       iGlobalTime: { type: 'f', value: 0.0 },
       iMouse: { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) }
     };
 
-    for (let i = 0; i < this.channels.length; i++) {
-      uniforms['iChannel'+i] = { type: 't', value: this.channels[i] };
+    this.uniforms = _.assign(defaultUniforms, this.uniforms);
+
+    if (this.isFeedback) {
+      this.bufferTexture2 = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+      this.bufferTexture2.texture.type = THREE.FloatType;
+
+      this.uniforms['iChannel0'] = { type: 't', value: this.bufferTexture.texture };
     }
 
     this.bufferMaterial = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      fragmentShader: this.fragShader,
-      vertexShader: this.vertShader
+      uniforms: this.uniforms,
+      fragmentShader: this.fragmentShader
     });
 
-    let plane = new THREE.PlaneBufferGeometry( this.resolution.x, this.resolution.height );
-    let bufferObject = new THREE.Mesh(plane, this.bufferMaterial);
+    if (this.vertexShader) this.bufferMaterial.vertexShader = this.vertexShader;
 
-    this.bufferScene.add(bufferObject)
+    let plane = new THREE.PlaneBufferGeometry( this.resolution.x, this.resolution.y );
+    this.bufferObject = new THREE.Mesh(plane, this.bufferMaterial);
+    this.bufferScene.add(this.bufferObject);
   }
 
-  update(frame, mouse, resolution) {
-    this.bufferMaterial.uniforms.iFrame.value = frame;
-    this.bufferMaterial.uniforms.iMouse.value = mouse;
-    this.bufferMaterial.uniforms.iResolution.value = resolution;
+  swap() {
+    if (!this.isFeedback) return;
+    let swap = this.bufferTexture;
+    this.bufferTexture = this.bufferTexture2;
+    this.bufferTexture2 = swap;
+    this.uniforms.iChannel0.value = this.bufferTexture.texture;
   }
 
-  renderToBuffer() {
-    this.renderer.render(this.bufferScene, this.camera, this.bufferTexture, true);
+  render() {
+    let texture = this.isFeedback ? this.bufferTexture2 : this.bufferTexture;
+    if (this.renderToScreen) {
+      this.renderer.render(this.bufferScene, this.camera);
+    } else {
+      this.renderer.render(this.bufferScene, this.camera, texture, true);
+    }
+    if (this.isFeedback) this.swap();
   }
 
-  renderToScreen() {
-    this.renderer.render(this.bufferScene, this.camera);
+  updateResolution(resolution) {
+    this.resolution = resolution;
+
+    this.updateUniforms({
+      iResolution: { type: 'v2', value: resolution }
+    });
   }
 
   updateUniforms(uniforms) {
-    _.assign(this.bufferMaterial.uniforms, uniforms);
-    console.log(this.bufferMaterial.uniforms);
+    _.assign(this.uniforms, uniforms);
   }
 
   getTexture() {
-    return this.bufferTexture.texture;
+    if (this.isFeedback) {
+      return this.bufferTexture2.texture;
+    } else {
+      return this.bufferTexture.texture;
+    }
   }
 }

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "babel-plugin-glslify": "^2.0.0",
+    "canvas-fit": "^1.5.0",
     "domready": "^1.0.8",
     "glsl-fast-gaussian-blur": "^1.0.2",
     "glslify": "^6.0.2",

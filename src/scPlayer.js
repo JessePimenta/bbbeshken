@@ -1,4 +1,5 @@
 import SC from 'soundcloud';
+
 export default class SCPlayer {
 
   constructor(clientID, trackChangeListener, albumUrl, secret) {
@@ -21,6 +22,28 @@ export default class SCPlayer {
     })
 
     this.bindUIControls();
+  }
+
+  bindUIControls() {
+    // document.getElementById('play').addEventListener('click', (event) => {
+    //   event.preventDefault();
+    //   this.playTrack(this.currentTrackIndex);
+    // });
+    //
+    // document.getElementById('pause').addEventListener('click', (event) => {
+    //   event.preventDefault();
+    //   this.pauseTrack();
+    // });
+
+    document.getElementById('forward').addEventListener('click', (event) => {
+      event.preventDefault();
+      this.skipForward();
+    })
+
+    document.getElementById('backward').addEventListener('click', (event) => {
+      event.preventDefault();
+      this.skipBackward();
+    })
   }
 
   // TODO: Handle case of URL being a track
@@ -75,7 +98,6 @@ export default class SCPlayer {
         })
 
         this.players[trackIndex].play();
-
       });
     }
   }
@@ -94,27 +116,5 @@ export default class SCPlayer {
     let nextTrack = this.currentTrackIndex == 0 ? this.trackIDs.length - 1 : this.currentTrackIndex - 1;
     this.trackChangeListener(nextTrack);
     this.playTrack(nextTrack);
-  }
-
-  bindUIControls() {
-    document.getElementById('play').addEventListener('click', (event) => {
-      event.preventDefault();
-      this.playTrack(this.currentTrackIndex);
-    });
-
-    document.getElementById('pause').addEventListener('click', (event) => {
-      event.preventDefault();
-      this.pauseTrack();
-    });
-
-    document.getElementById('forward').addEventListener('click', (event) => {
-      event.preventDefault();
-      this.skipForward();
-    })
-
-    document.getElementById('backward').addEventListener('click', (event) => {
-      event.preventDefault();
-      this.skipBackward();
-    })
   }
 }
