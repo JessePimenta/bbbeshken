@@ -148,7 +148,7 @@ export default class AlbumVisual {
 
   update () {
     // Schedule the next frame.
-    requestAnimationFrame(() => { this.update() });
+    this.id = requestAnimationFrame(() => { this.update() });
 
     for (let buffer of this.buffers) {
       buffer.render();

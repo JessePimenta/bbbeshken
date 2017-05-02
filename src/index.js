@@ -2,6 +2,7 @@ import domready from 'domready';
 import { Vector2, Vector3 } from 'three';
 import AlbumVisual from './AlbumVisual.js';
 import SCPlayer from './SCPlayer.js';
+import DOMUtils from './DOMUtils.js';
 
 let container;
 let trackImagePaths;
@@ -41,6 +42,10 @@ function addListeners() {
   document.onmousedown = onMouseDown;
   document.onmouseup = onMouseUp;
   window.onresize = onResize;
+
+  document.getElementById('player-controls').onclick = showPlayerControls;
+  document.getElementById('close').onclick = hidePlayerControls;
+  // document.getElementById
 }
 
 function onMouseMove(event) {
@@ -52,15 +57,22 @@ function onMouseMove(event) {
 }
 
 function onMouseDown(event) {
-  event.preventDefault();
-  mouse.z = 1.0;
-  albumVisual.updateMouse(mouse);
+  if (!isRightMouseButton(event)) {
+    event.preventDefault();
+    if (event.target)
+    mouse.z = 1.0;
+    albumVisual.updateMouse(mouse);
+  }
+}
+
+function isRightMouseButton(event) {
+  return event.which == 3 || event.button == 2;
 }
 
 function onMouseUp(event) {
-  event.preventDefault();
-  mouse.z = 0.0;
-  albumVisual.updateMouse(mouse);
+    event.preventDefault();
+    mouse.z = 0.0;
+    albumVisual.updateMouse(mouse);
 }
 
 function onResize(event) {
@@ -68,9 +80,32 @@ function onResize(event) {
   albumVisual.updateRenderSize(renderSize);
 }
 
-function updateImageTextureForTrack(trackIndex, player) {
+function showPlayerControls(event) {
+  if (DOMUtils.hasClass(event.target, 'player-controls')) {
+    event.preventDefault();
+    event.stopPropagation();
+    let playerContainer = document.querySelector('.player-controls-container');
+    if (!DOMUtils.hasClass(playerContainer, 'expanded')) {
+      DOMUtils.addClass(playerContainer, 'expanded');
+    }
+  }
+}
+
+function hidePlayerControls(event) {
+  let playerContainer = document.querySelector('.player-controls-container');
+  if (DOMUtils.hasClass(playerContainer, 'expanded')) {
+    DOMUtils.removeClass(playerContainer, 'expanded');
+  }
+}
+
+function updateImageTextureForTrack(trackIndex, trackTitle) {
   if (!trackImagePaths[trackIndex]) return;
   albumVisual.onTrackChanged(trackIndex);
+  setTrackTitle(trackTitle);
+}
+
+function setTrackTitle(title) {
+  document.querySelector('.track-name span').textContent = title;
 }
 
 domready(function () {
