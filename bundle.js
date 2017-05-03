@@ -60790,7 +60790,7 @@ var AlbumVisual = function () {
       var _this = this;
 
       // Schedule the next frame.
-      requestAnimationFrame(function () {
+      this.id = requestAnimationFrame(function () {
         _this.update();
       });
 
@@ -60828,7 +60828,59 @@ var AlbumVisual = function () {
 
 exports.default = AlbumVisual;
 
-},{"./RenderBuffer.js":9,"./shaders.js":12,"canvas-fit":1,"three":7}],9:[function(require,module,exports){
+},{"./RenderBuffer.js":10,"./shaders.js":13,"canvas-fit":1,"three":7}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DOMUtils = function () {
+  function DOMUtils() {
+    _classCallCheck(this, DOMUtils);
+  }
+
+  _createClass(DOMUtils, null, [{
+    key: 'hasClass',
+    value: function hasClass(el, className) {
+      if (el.classList) return el.classList.contains(className);else return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+    }
+  }, {
+    key: 'addClass',
+    value: function addClass(el, className) {
+      if (el.classList) el.classList.add(className);else el.className += ' ' + className;
+    }
+  }, {
+    key: 'removeClass',
+    value: function removeClass(el, className) {
+      if (el.classList) el.classList.remove(className);else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+  }, {
+    key: 'addMultiEventListener',
+    value: function addMultiEventListener(el, eventsString, fn) {
+      eventsString.split(' ').forEach(function (e) {
+        return el.addEventListener(e, fn, false);
+      });
+    }
+  }, {
+    key: 'removeMultiEventListener',
+    value: function removeMultiEventListener(el, eventsString, fn) {
+      eventsString.split(' ').forEach(function (e) {
+        return el.removeEventListener(e, fn);
+      });
+    }
+  }]);
+
+  return DOMUtils;
+}();
+
+exports.default = DOMUtils;
+
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -60951,7 +61003,7 @@ var RenderBuffer = function () {
 
 exports.default = RenderBuffer;
 
-},{"lodash":5,"three":7}],10:[function(require,module,exports){
+},{"lodash":5,"three":7}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -60975,6 +61027,7 @@ var SCPlayer = function () {
     this.clientID = clientID;
     this.trackChangeListener = trackChangeListener;
     this.trackIDs = [];
+    this.trackList = ['The Roman Call', 'Lightning By The Sea', 'Fantom Pain (I)', 'Nina', 'Force Of Evil', 'Purlieu (II)'];
     this.players = [];
     this.currentTrackIndex = 0;
     this.albumUrl = albumUrl;
@@ -61032,6 +61085,8 @@ var SCPlayer = function () {
       return new _soundcloud2.default.Promise(function (resolve, reject) {
         _soundcloud2.default.resolve(_this3.albumUrl).then(function (result) {
           if (result && result.tracks) {
+            console.log(result.tracks);
+            console.log(result);
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
             var _iteratorError = undefined;
@@ -61040,8 +61095,9 @@ var SCPlayer = function () {
               for (var _iterator = result.tracks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                 var track = _step.value;
 
-                console.log(track);
-                _this3.trackIDs.push(track.id);
+                var trackNum = _this3.trackList.indexOf(track.title);
+                console.log(trackNum);
+                _this3.trackIDs[trackNum] = track.id;
               }
             } catch (err) {
               _didIteratorError = true;
@@ -61058,6 +61114,7 @@ var SCPlayer = function () {
               }
             }
 
+            console.log(_this3.trackIDs);
             resolve();
           }
           reject();
@@ -61081,6 +61138,7 @@ var SCPlayer = function () {
         // this.trackChangeListener(trackIndex);
       } else {
         var trackID = this.trackIDs[trackIndex];
+        var trackTitle = this.trackList[trackIndex];
 
         _soundcloud2.default.stream('/tracks/' + trackID, this.secret).then(function (player) {
           // Chrome won't play with flash
@@ -61091,7 +61149,7 @@ var SCPlayer = function () {
           _this4.players[trackIndex] = player;
 
           _this4.players[trackIndex].on('play-start', function (event) {
-            if (event.position == 0) _this4.trackChangeListener(trackIndex);
+            if (event.position == 0) _this4.trackChangeListener(trackIndex, trackTitle);
           });
 
           _this4.players[trackIndex].on('finish', function (event) {
@@ -61118,7 +61176,6 @@ var SCPlayer = function () {
     key: 'skipBackward',
     value: function skipBackward() {
       var nextTrack = this.currentTrackIndex == 0 ? this.trackIDs.length - 1 : this.currentTrackIndex - 1;
-      this.trackChangeListener(nextTrack);
       this.playTrack(nextTrack);
     }
   }]);
@@ -61128,7 +61185,7 @@ var SCPlayer = function () {
 
 exports.default = SCPlayer;
 
-},{"soundcloud":6}],11:[function(require,module,exports){
+},{"soundcloud":6}],12:[function(require,module,exports){
 'use strict';
 
 var _domready = require('domready');
@@ -61145,6 +61202,10 @@ var _SCPlayer = require('./SCPlayer.js');
 
 var _SCPlayer2 = _interopRequireDefault(_SCPlayer);
 
+var _DOMUtils = require('./DOMUtils.js');
+
+var _DOMUtils2 = _interopRequireDefault(_DOMUtils);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var container = void 0;
@@ -61153,6 +61214,8 @@ var albumVisual = void 0;
 var scPlayer = void 0;
 var renderSize = void 0;
 var mouse = void 0;
+var controlsExpanded = true;
+var started = false;
 
 function setup() {
   container = document.getElementById('album-container');
@@ -61174,6 +61237,10 @@ function addListeners() {
   document.onmousedown = onMouseDown;
   document.onmouseup = onMouseUp;
   window.onresize = onResize;
+
+  document.getElementById('player-controls').onclick = showPlayerControls;
+  document.getElementById('close').onclick = hidePlayerControls;
+  document.querySelector('.player-controls-container').onmousedown = preventClickThroughControls;
 }
 
 function onMouseMove(event) {
@@ -61185,9 +61252,15 @@ function onMouseMove(event) {
 }
 
 function onMouseDown(event) {
-  event.preventDefault();
-  mouse.z = 1.0;
-  albumVisual.updateMouse(mouse);
+  if (!isRightMouseButton(event)) {
+    event.preventDefault();
+    if (event.target) mouse.z = 1.0;
+    albumVisual.updateMouse(mouse);
+  }
+}
+
+function isRightMouseButton(event) {
+  return event.which == 3 || event.button == 2;
 }
 
 function onMouseUp(event) {
@@ -61201,18 +61274,57 @@ function onResize(event) {
   albumVisual.updateRenderSize(renderSize);
 }
 
-function updateImageTextureForTrack(trackIndex, player) {
+function showPlayerControls(event) {
+  if (_DOMUtils2.default.hasClass(event.target, 'player-controls')) {
+    event.preventDefault();
+    event.stopPropagation();
+    var playerContainer = document.querySelector('.player-controls-container');
+    if (!_DOMUtils2.default.hasClass(playerContainer, 'expanded')) {
+      controlsExpanded = true;
+      _DOMUtils2.default.addClass(playerContainer, 'expanded');
+    }
+  }
+}
+
+function hidePlayerControls(event) {
+  var playerContainer = document.querySelector('.player-controls-container');
+  if (!started) {
+    started = true;
+    scPlayer.init();
+    setTimeout(function () {
+      _DOMUtils2.default.removeClass(playerContainer, 'not-started');
+    }, 500);
+  }
+
+  if (_DOMUtils2.default.hasClass(playerContainer, 'expanded')) {
+    controlsExpanded = false;
+    _DOMUtils2.default.removeClass(playerContainer, 'expanded');
+  }
+}
+
+function preventClickThroughControls(event) {
+  if (controlsExpanded) {
+    event.stopPropagation();
+  }
+}
+
+function updateImageTextureForTrack(trackIndex, trackTitle) {
   if (!trackImagePaths[trackIndex]) return;
   albumVisual.onTrackChanged(trackIndex);
+  setTrackTitle(trackTitle);
+}
+
+function setTrackTitle(title) {
+  document.querySelector('.track-name span').textContent = title;
 }
 
 (0, _domready2.default)(function () {
   setup();
   scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
-  scPlayer.init();
+  // scPlayer.init();
 });
 
-},{"./AlbumVisual.js":8,"./SCPlayer.js":10,"domready":2,"three":7}],12:[function(require,module,exports){
+},{"./AlbumVisual.js":8,"./DOMUtils.js":9,"./SCPlayer.js":11,"domready":2,"three":7}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -61242,4 +61354,4 @@ var gaussianHorizontal = exports.gaussianHorizontal = '#define GLSLIFY 1\n\n  ve
 
 var final = exports.final = '\n  precision highp float;\n#define GLSLIFY 1\n\n  uniform vec2 iResolution;\n  uniform int iFrame;\n  uniform vec3 iMouse;\n  uniform sampler2D iChannel0;\n  uniform sampler2D iChannel1;\n\n  void main()\n  {\n    vec2 uv = gl_FragCoord.xy / iResolution.xy;\n    vec4 bufferPixel = texture2D(iChannel0, uv);\n    vec4 imagePixel = texture2D(iChannel1, uv);\n\n    // bufferPixel = vec4(mix(bufferPixel.rgb, vec3(1.0), (iMouse.y+1.)/2.), 1.);\n    // gl_FragColor = texture2D(iChannel1, uv * bufferPixel.rg);\n    // gl_FragColor = bufferPixel;\n    // This makes the warping happen from the center out\n    uv = -1.0 + 2.0 * uv;\n    vec2 scaleCenter = vec2(0.5, 0.5);\n    uv = (uv - scaleCenter) * bufferPixel.rg + scaleCenter;\n    gl_FragColor = texture2D(iChannel1, uv*0.5+0.5);\n  }\n';
 
-},{"glslify":4}]},{},[11]);
+},{"glslify":4}]},{},[12]);
