@@ -74,9 +74,13 @@ canvas {
   width: 100%;
   visibility: hidden;
   opacity: 0;
-  font-family: 'source-code-pro';
 
   transition: all 0.3s;
+}
+
+.player-controls-container .player-controls span {
+  font-family: 'source-code-pro', Helvetica, arial, sans-serif;
+  font-style: italic;
 }
 
 .player-controls-container.expanded .player-controls > div {
@@ -157,6 +161,7 @@ canvas {
 .close {
   position: absolute;
   bottom: 2em;
+  left: 0;
   text-align: center;
 }
 

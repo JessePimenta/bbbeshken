@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "browserify src/index.js -o bundle.js",
+    "prefix-css": "postcss --use autoprefixer -o main.css src/css/style.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ben Yoshiwara, Ben Lyaunzon",
