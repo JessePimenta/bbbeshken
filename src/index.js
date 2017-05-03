@@ -10,6 +10,8 @@ let albumVisual;
 let scPlayer;
 let renderSize;
 let mouse;
+let controlsExpanded = true;
+let started = false;
 
 function setup() {
   container = document.getElementById('album-container');
@@ -45,7 +47,7 @@ function addListeners() {
 
   document.getElementById('player-controls').onclick = showPlayerControls;
   document.getElementById('close').onclick = hidePlayerControls;
-  // document.getElementById
+  document.querySelector('.player-controls-container').onmousedown = preventClickThroughControls;
 }
 
 function onMouseMove(event) {
@@ -86,6 +88,7 @@ function showPlayerControls(event) {
     event.stopPropagation();
     let playerContainer = document.querySelector('.player-controls-container');
     if (!DOMUtils.hasClass(playerContainer, 'expanded')) {
+      controlsExpanded = true;
       DOMUtils.addClass(playerContainer, 'expanded');
     }
   }
@@ -93,8 +96,23 @@ function showPlayerControls(event) {
 
 function hidePlayerControls(event) {
   let playerContainer = document.querySelector('.player-controls-container');
+  if (!started) {
+    started = true;
+    scPlayer.init();
+    setTimeout(function() {
+      DOMUtils.removeClass(playerContainer, 'not-started');
+    }, 500);
+  }
+
   if (DOMUtils.hasClass(playerContainer, 'expanded')) {
+    controlsExpanded = false;
     DOMUtils.removeClass(playerContainer, 'expanded');
+  }
+}
+
+function preventClickThroughControls(event) {
+  if (controlsExpanded) {
+    event.stopPropagation();
   }
 }
 
@@ -114,5 +132,5 @@ domready(function () {
                            updateImageTextureForTrack,
                            'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
                            's-KqrgS');
-  scPlayer.init();
+  // scPlayer.init();
 })

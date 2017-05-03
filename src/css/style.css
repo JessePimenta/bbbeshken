@@ -59,7 +59,7 @@ canvas {
   background: #FFF;
   transition-property: transform, width, height, padding;
   transition-duration: 0.3s;
-  transition-delay: 0.3s
+  transition-delay: 0.3s;
 }
 
 .player-controls-container.expanded .player-controls {
@@ -74,7 +74,7 @@ canvas {
   width: 100%;
   visibility: hidden;
   opacity: 0;
-  font-family: Helvetica;
+  font-family: 'source-code-pro';
 
   transition: all 0.3s;
 }
@@ -83,6 +83,22 @@ canvas {
   visibility: visible;
   opacity: 1;
   transition: all 0.3s 0.3s;
+}
+
+.player-controls .close i {
+  font-size: 1.5em;
+}
+
+.not-started .close .start {
+  display: block;
+}
+
+.close .start {
+  display: none;
+}
+
+.not-started .track.row, .not-started .divider, .not-started .controls, .not-started .close svg {
+  display: none;
 }
 
 .row {
