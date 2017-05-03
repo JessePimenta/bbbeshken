@@ -6,6 +6,14 @@ export default class SCPlayer {
     this.clientID = clientID;
     this.trackChangeListener = trackChangeListener;
     this.trackIDs = [];
+    this.trackList = [
+      'The Roman Call',
+      'Lightning By The Sea',
+      'Fantom Pain (I)',
+      'Nina',
+      'Force Of Evil',
+      'Purlieu (II)'
+    ];
     this.players = [];
     this.currentTrackIndex = 0;
     this.albumUrl = albumUrl;
@@ -51,10 +59,14 @@ export default class SCPlayer {
     return new SC.Promise((resolve, reject) => {
       SC.resolve(this.albumUrl).then((result) => {
         if (result && result.tracks) {
+          console.log(result.tracks);
+          console.log(result);
           for (let track of result.tracks) {
-            console.log(track);
-            this.trackIDs.push(track.id);
+            let trackNum = this.trackList.indexOf(track.title);
+            console.log(trackNum);
+            this.trackIDs[trackNum] = track.id;
           }
+          console.log(this.trackIDs);
           resolve();
         }
         reject();
@@ -80,6 +92,7 @@ export default class SCPlayer {
     else
     {
       let trackID = this.trackIDs[trackIndex];
+      let trackTitle = this.trackList[trackIndex];
 
       SC.stream('/tracks/' + trackID, this.secret).then((player) => {
         // Chrome won't play with flash
@@ -90,7 +103,7 @@ export default class SCPlayer {
         this.players[trackIndex] = player;
 
         this.players[trackIndex].on('play-start', (event) => {
-          if (event.position == 0) this.trackChangeListener(trackIndex);
+          if (event.position == 0) this.trackChangeListener(trackIndex, trackTitle);
         })
 
         this.players[trackIndex].on('finish', (event) => {
@@ -114,7 +127,6 @@ export default class SCPlayer {
 
   skipBackward() {
     let nextTrack = this.currentTrackIndex == 0 ? this.trackIDs.length - 1 : this.currentTrackIndex - 1;
-    this.trackChangeListener(nextTrack);
     this.playTrack(nextTrack);
   }
 }

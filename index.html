@@ -1,21 +1,54 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>BenBenBen</title>
-    <link rel="stylesheet" href="src/css/style.css">
-    <link rel="stylesheet" href="src/vendor/font-awesome/css/font-awesome.min.css">
-    <script src="https://use.typekit.net/pmj7vwu.js"></script>
-    <script>try{Typekit.load({ async: true });}catch(e){}</script>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <title>BenBenBen</title>
+  <link rel="stylesheet" href="src/css/style.css">
+  <link rel="stylesheet" href="src/vendor/font-awesome/css/font-awesome.min.css">
+  <script src="https://use.typekit.net/pmj7vwu.js"></script>
+  <script>try{Typekit.load({ async: true });}catch(e){}</script>
+</head>
   <body>
     <div id="album-container">
     </div>
-    <div class="player-controls">
-      <div id="forward"><i class="fa fa-forward" aria-hidden="true"></i></div>
-      <!-- <div id="pause"><i class="fa fa-pause" aria-hidden="true"></i></div>
-      <div id="play"><i class="fa fa-play" aria-hidden="true"></i></div> -->
-      <div id="backward"><i class="fa fa-backward" aria-hidden="true"></i></div>
+    <div class="player-controls-container expanded not-started">
+      <div id="player-controls" class="player-controls clearfix">
+        <div>
+          <div class="row artist-album">
+            <div class="artist">
+              <span>Beshken</span>
+            </div>
+            <div class="album">
+              <span>For Time is The Longest Distance Between Two Places</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="row track">
+            <div class="track-num">
+              <span>Track</span>
+            </div>
+            <div class="track-name">
+              <span></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="controls">
+              <!-- <div id="pause"><i class="fa fa-pause" aria-hidden="true"></i></div>
+              <div id="play"><i class="fa fa-play" aria-hidden="true"></i></div> -->
+              <div id="backward"><i class="fa fa-backward" aria-hidden="true"></i></div>
+              <div id="forward"><i class="fa fa-forward" aria-hidden="true"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="close">
+          <div id="close">
+            <svg viewbox="0 0 40 40">
+              <path class="close-x" d="M 10,10 L 30,30 M 30,10 L 10,30" />
+            </svg>
+            <div class="start"><i class="fa fa-play" aria-hidden="true"></i></div>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="text/javascript" src="bundle.js"></script>
   </body>

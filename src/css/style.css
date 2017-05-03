@@ -9,40 +9,169 @@ canvas {
   display: block;
 }
 
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 #album-container {
   box-sizing: border-box;
   position: absolute;
-  border-top: 80px solid #000;
-  border-bottom: 80px solid #000;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
 }
 
-.player-controls {
-  box-sizing: border-box;
-  z-index: 100;
+.player-controls-container {
   position: fixed;
-  bottom: 0px;
-  padding: 0 20px;
-  line-height: 80px;
-  vertical-align: middle;
+  box-sizing: border-box;
   width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 100;
+
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 1s ease;
 }
 
-.player-controls div {
-  float: right;
-  margin-left: 20px;
+.player-controls-container.expanded {
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
-.player-controls i {
+.player-controls {
+  width: 2em;
+  height: 2em;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  bottom: 2em;
+  right: 2em;
+  padding: 0;
+
+  border-radius: 50%;
+  background: #FFF;
+  transition-property: transform, width, height, padding;
+  transition-duration: 0.3s;
+  transition-delay: 0.3s;
+}
+
+.player-controls-container.expanded .player-controls {
+  transform: translateY(calc(-50vh + 14.5em)) translateX(calc(-50vw + 14.5em));
+  width: 25em;
+  height: 25em;
+  padding: 3.66em;
+  transition-delay: 0s;
+}
+
+.player-controls-container .player-controls > div {
+  width: 100%;
+  visibility: hidden;
+  opacity: 0;
+  font-family: 'source-code-pro';
+
+  transition: all 0.3s;
+}
+
+.player-controls-container.expanded .player-controls > div {
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.3s 0.3s;
+}
+
+.player-controls .close i {
+  font-size: 1.5em;
+}
+
+.not-started .close .start {
+  display: block;
+}
+
+.close .start {
+  display: none;
+}
+
+.not-started .track.row, .not-started .divider, .not-started .controls, .not-started .close svg {
+  display: none;
+}
+
+.row {
+  display: flex;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.divider {
+  width: 100%;
+  height: 2px;
+  background-color: #9e9e9e;
+  margin: 1em 0;
+}
+
+.artist-album .artist, .track .track-num {
+  float: left;
+  width: calc(40% - 2em);
+  margin-right: 2em;
+  align-self: center;
+}
+
+.artist-album .album, .track .track-name {
+  float: left;
+  width: 60%;
+  align-self: center;
+}
+
+.controls {
+  margin-top: 1.5em;
+  margin-left: 40%;
+}
+
+.controls > div {
+  display: inline-block;
+}
+
+.controls > div:first-child {
+  margin-right: 1.5em;
+}
+
+.controls i {
   transition: all 0.01s;
-  font-size: 24px;
-  text-shadow: #FFF 0 0 40px;
-  color: #FFF;
+  font-size: 1.5em;
+  color: #000;
 }
 
-.player-controls i:hover {
+.controls i:hover {
   text-shadow: #FFF 0 0 10px;
+}
+
+.close {
+  position: absolute;
+  bottom: 2em;
+  text-align: center;
+}
+
+.close > div {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+}
+
+.close > svg {
+  display: block;
+}
+
+.close-x {
+  stroke: black;
+  fill: transparent;
+  stroke-width: 2;
 }
