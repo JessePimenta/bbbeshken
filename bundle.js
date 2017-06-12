@@ -60643,6 +60643,7 @@ var AlbumVisual = function () {
 
       this.frame = 0;
       this.started = false;
+      this.paused = false;
     }
 
     /**
@@ -60720,33 +60721,35 @@ var AlbumVisual = function () {
   }, {
     key: 'updateTimeAndFrame',
     value: function updateTimeAndFrame() {
-      if (this.started) this.frame += 1;
-      var time = window.performance.now() / 1000;
+      if (!this.paused) {
+        if (this.started) this.frame += 1;
+        var time = window.performance.now() / 1000;
 
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
 
-      try {
-        for (var _iterator3 = this.buffers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var buffer = _step3.value;
-
-          buffer.updateUniforms({
-            iFrame: { type: 'i', value: this.frame },
-            iGlobalTime: { type: 'f', value: time }
-          });
-        }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
         try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
+          for (var _iterator3 = this.buffers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var buffer = _step3.value;
+
+            buffer.updateUniforms({
+              iFrame: { type: 'i', value: this.frame },
+              iGlobalTime: { type: 'f', value: time }
+            });
           }
+        } catch (err) {
+          _didIteratorError3 = true;
+          _iteratorError3 = err;
         } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
+          try {
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+              _iterator3.return();
+            }
+          } finally {
+            if (_didIteratorError3) {
+              throw _iteratorError3;
+            }
           }
         }
       }
@@ -60790,36 +60793,40 @@ var AlbumVisual = function () {
       var _this = this;
 
       // Schedule the next frame.
+
       this.id = requestAnimationFrame(function () {
         _this.update();
       });
 
-      var _iteratorNormalCompletion5 = true;
-      var _didIteratorError5 = false;
-      var _iteratorError5 = undefined;
+      if (!this.paused) {
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
 
-      try {
-        for (var _iterator5 = this.buffers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var buffer = _step5.value;
-
-          buffer.render();
-        }
-      } catch (err) {
-        _didIteratorError5 = true;
-        _iteratorError5 = err;
-      } finally {
         try {
-          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-            _iterator5.return();
+
+          for (var _iterator5 = this.buffers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var buffer = _step5.value;
+
+            buffer.render();
           }
+        } catch (err) {
+          _didIteratorError5 = true;
+          _iteratorError5 = err;
         } finally {
-          if (_didIteratorError5) {
-            throw _iteratorError5;
+          try {
+            if (!_iteratorNormalCompletion5 && _iterator5.return) {
+              _iterator5.return();
+            }
+          } finally {
+            if (_didIteratorError5) {
+              throw _iteratorError5;
+            }
           }
         }
-      }
 
-      this.updateTimeAndFrame();
+        this.updateTimeAndFrame();
+      }
     }
   }]);
 
@@ -61021,13 +61028,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var SCPlayer = function () {
-  function SCPlayer(clientID, trackChangeListener, albumUrl, secret) {
+  function SCPlayer(clientID, trackChangeListener, playStatusChangeListener, albumUrl, secret) {
     _classCallCheck(this, SCPlayer);
 
     this.clientID = clientID;
     this.trackChangeListener = trackChangeListener;
+    this.playStatusChangeListener = playStatusChangeListener;
     this.trackIDs = [];
-    this.trackList = ['The Roman Call', 'Lightning By The Sea', 'Fantom Pain (I)', 'Nina', 'Force Of Evil', 'Purlieu (II)'];
+    this.trackList = ['The Roman Call', 'Lightning By The Sea (extended)', 'Fantom Pain (I)', 'Nina', 'Force Of Evil', 'Purlieu (II)'];
     this.players = [];
     this.currentTrackIndex = 0;
     this.albumUrl = albumUrl;
@@ -61054,15 +61062,21 @@ var SCPlayer = function () {
     value: function bindUIControls() {
       var _this2 = this;
 
-      // document.getElementById('play').addEventListener('click', (event) => {
-      //   event.preventDefault();
-      //   this.playTrack(this.currentTrackIndex);
-      // });
-      //
-      // document.getElementById('pause').addEventListener('click', (event) => {
-      //   event.preventDefault();
-      //   this.pauseTrack();
-      // });
+      document.getElementById('play').addEventListener('click', function (event) {
+        event.preventDefault();
+        _this2.playStatusChangeListener(true);
+        document.getElementById('play').style.display = 'none';
+        document.getElementById('pause').style.display = 'inline-block';
+        _this2.playTrack(_this2.currentTrackIndex);
+      });
+
+      document.getElementById('pause').addEventListener('click', function (event) {
+        event.preventDefault();
+        _this2.playStatusChangeListener(false);
+        document.getElementById('pause').style.display = 'none';
+        document.getElementById('play').style.display = 'inline-block';
+        _this2.pauseTrack();
+      });
 
       document.getElementById('forward').addEventListener('click', function (event) {
         event.preventDefault();
@@ -61085,8 +61099,6 @@ var SCPlayer = function () {
       return new _soundcloud2.default.Promise(function (resolve, reject) {
         _soundcloud2.default.resolve(_this3.albumUrl).then(function (result) {
           if (result && result.tracks) {
-            console.log(result.tracks);
-            console.log(result);
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
             var _iteratorError = undefined;
@@ -61096,7 +61108,6 @@ var SCPlayer = function () {
                 var track = _step.value;
 
                 var trackNum = _this3.trackList.indexOf(track.title);
-                console.log(trackNum);
                 _this3.trackIDs[trackNum] = track.id;
               }
             } catch (err) {
@@ -61114,7 +61125,6 @@ var SCPlayer = function () {
               }
             }
 
-            console.log(_this3.trackIDs);
             resolve();
           }
           reject();
@@ -61149,7 +61159,10 @@ var SCPlayer = function () {
           _this4.players[trackIndex] = player;
 
           _this4.players[trackIndex].on('play-start', function (event) {
-            if (event.position == 0) _this4.trackChangeListener(trackIndex, trackTitle);
+            if (event.position === 0) _this4.trackChangeListener(trackIndex, trackTitle);
+            _this4.playStatusChangeListener(true);
+            document.getElementById('play').style.display = 'none';
+            document.getElementById('pause').style.display = 'inline-block';
           });
 
           _this4.players[trackIndex].on('finish', function (event) {
@@ -61216,6 +61229,7 @@ var renderSize = void 0;
 var mouse = void 0;
 var controlsExpanded = true;
 var started = false;
+var paused = false;
 
 function setup() {
   container = document.getElementById('album-container');
@@ -61229,7 +61243,7 @@ function setup() {
   albumVisual.setupBuffers();
   albumVisual.update();
 
-  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
+  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, onPlayStatusChanged, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
 }
 
 function addListeners() {
@@ -61288,9 +61302,11 @@ function showPlayerControls(event) {
 
 function hidePlayerControls(event) {
   var playerContainer = document.querySelector('.player-controls-container');
+  var albumCover = document.querySelector('.album-cover');
   if (!started) {
     started = true;
     scPlayer.init();
+    _DOMUtils2.default.addClass(albumCover, 'hidden');
     setTimeout(function () {
       _DOMUtils2.default.removeClass(playerContainer, 'not-started');
     }, 500);
@@ -61314,13 +61330,25 @@ function updateImageTextureForTrack(trackIndex, trackTitle) {
   setTrackTitle(trackTitle);
 }
 
+function onPlayStatusChanged(playing) {
+  if (playing) {
+    albumVisual.paused = false;
+  } else {
+    albumVisual.paused = true;
+  }
+}
+
 function setTrackTitle(title) {
   document.querySelector('.track-name span').textContent = title;
 }
 
 (0, _domready2.default)(function () {
   setup();
-  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
+  // scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
+  //                          updateImageTextureForTrack,
+  //                          onPlayStatusChanged,
+  //                          'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
+  //                          's-KqrgS');
   // scPlayer.init();
 });
 
