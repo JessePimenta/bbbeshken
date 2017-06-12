@@ -42,6 +42,7 @@ export default class AlbumVisual {
 
     this.frame = 0;
     this.started = false;
+    this.paused = false;
   }
 
   /**
@@ -124,14 +125,16 @@ export default class AlbumVisual {
   }
 
   updateTimeAndFrame() {
-    if (this.started) this.frame += 1;
-    let time = window.performance.now() / 1000;
+    if (!this.paused) {
+      if (this.started) this.frame += 1;
+      let time = window.performance.now() / 1000;
 
-    for (let buffer of this.buffers) {
-      buffer.updateUniforms({
-        iFrame: { type: 'i', value: this.frame },
-        iGlobalTime: { type: 'f', value: time }
-      });
+      for (let buffer of this.buffers) {
+        buffer.updateUniforms({
+          iFrame: { type: 'i', value: this.frame },
+          iGlobalTime: { type: 'f', value: time }
+        });
+      }
     }
   }
 
@@ -148,12 +151,16 @@ export default class AlbumVisual {
 
   update () {
     // Schedule the next frame.
-    this.id = requestAnimationFrame(() => { this.update() });
 
-    for (let buffer of this.buffers) {
-      buffer.render();
+    this.id = requestAnimationFrame(() => { this.update(); });
+
+    if (!this.paused) {
+
+      for (let buffer of this.buffers) {
+        buffer.render();
+      }
+
+      this.updateTimeAndFrame();
     }
-
-    this.updateTimeAndFrame();
   }
 }

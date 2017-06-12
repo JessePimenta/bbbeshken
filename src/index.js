@@ -12,6 +12,7 @@ let renderSize;
 let mouse;
 let controlsExpanded = true;
 let started = false;
+let paused = false;
 
 function setup() {
   container = document.getElementById('album-container');
@@ -35,6 +36,7 @@ function setup() {
 
   scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
                            updateImageTextureForTrack,
+                           onPlayStatusChanged,
                            'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
                            's-KqrgS');
 }
@@ -96,9 +98,11 @@ function showPlayerControls(event) {
 
 function hidePlayerControls(event) {
   let playerContainer = document.querySelector('.player-controls-container');
+  let albumCover = document.querySelector('.album-cover');
   if (!started) {
     started = true;
     scPlayer.init();
+    DOMUtils.addClass(albumCover, 'hidden');
     setTimeout(function() {
       DOMUtils.removeClass(playerContainer, 'not-started');
     }, 500);
@@ -122,15 +126,24 @@ function updateImageTextureForTrack(trackIndex, trackTitle) {
   setTrackTitle(trackTitle);
 }
 
+function onPlayStatusChanged(playing) {
+  if (playing) {
+    albumVisual.paused = false;
+  } else {
+    albumVisual.paused = true;
+  }
+}
+
 function setTrackTitle(title) {
   document.querySelector('.track-name span').textContent = title;
 }
 
 domready(function () {
   setup();
-  scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
-                           updateImageTextureForTrack,
-                           'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
-                           's-KqrgS');
+  // scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
+  //                          updateImageTextureForTrack,
+  //                          onPlayStatusChanged,
+  //                          'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
+  //                          's-KqrgS');
   // scPlayer.init();
 })

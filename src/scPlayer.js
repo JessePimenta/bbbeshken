@@ -2,13 +2,14 @@ import SC from 'soundcloud';
 
 export default class SCPlayer {
 
-  constructor(clientID, trackChangeListener, albumUrl, secret) {
+  constructor(clientID, trackChangeListener, playStatusChangeListener, albumUrl, secret) {
     this.clientID = clientID;
     this.trackChangeListener = trackChangeListener;
+    this.playStatusChangeListener = playStatusChangeListener;
     this.trackIDs = [];
     this.trackList = [
       'The Roman Call',
-      'Lightning By The Sea',
+      'Lightning By The Sea (extended)',
       'Fantom Pain (I)',
       'Nina',
       'Force Of Evil',
@@ -33,15 +34,22 @@ export default class SCPlayer {
   }
 
   bindUIControls() {
-    // document.getElementById('play').addEventListener('click', (event) => {
-    //   event.preventDefault();
-    //   this.playTrack(this.currentTrackIndex);
-    // });
-    //
-    // document.getElementById('pause').addEventListener('click', (event) => {
-    //   event.preventDefault();
-    //   this.pauseTrack();
-    // });
+
+    document.getElementById('play').addEventListener('click', (event) => {
+      event.preventDefault();
+      this.playStatusChangeListener(true);
+      document.getElementById('play').style.display = 'none';
+      document.getElementById('pause').style.display = 'inline-block';
+      this.playTrack(this.currentTrackIndex);
+    });
+
+    document.getElementById('pause').addEventListener('click', (event) => {
+      event.preventDefault();
+      this.playStatusChangeListener(false);
+      document.getElementById('pause').style.display = 'none';
+      document.getElementById('play').style.display = 'inline-block';
+      this.pauseTrack();
+    });
 
     document.getElementById('forward').addEventListener('click', (event) => {
       event.preventDefault();
@@ -59,14 +67,10 @@ export default class SCPlayer {
     return new SC.Promise((resolve, reject) => {
       SC.resolve(this.albumUrl).then((result) => {
         if (result && result.tracks) {
-          console.log(result.tracks);
-          console.log(result);
           for (let track of result.tracks) {
             let trackNum = this.trackList.indexOf(track.title);
-            console.log(trackNum);
             this.trackIDs[trackNum] = track.id;
           }
-          console.log(this.trackIDs);
           resolve();
         }
         reject();
@@ -103,7 +107,10 @@ export default class SCPlayer {
         this.players[trackIndex] = player;
 
         this.players[trackIndex].on('play-start', (event) => {
-          if (event.position == 0) this.trackChangeListener(trackIndex, trackTitle);
+          if (event.position === 0) this.trackChangeListener(trackIndex, trackTitle);
+          this.playStatusChangeListener(true);
+          document.getElementById('play').style.display = 'none';
+          document.getElementById('pause').style.display = 'inline-block';
         })
 
         this.players[trackIndex].on('finish', (event) => {
