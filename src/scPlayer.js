@@ -1,4 +1,5 @@
 import SC from 'soundcloud';
+import DOMUtils from './DOMUtils';
 
 export default class SCPlayer {
 
@@ -19,6 +20,7 @@ export default class SCPlayer {
     this.currentTrackIndex = 0;
     this.albumUrl = albumUrl;
     this.secret = secret || "";
+    this.busy = false;
   }
 
   init() {
@@ -28,38 +30,53 @@ export default class SCPlayer {
 
     this.getTrackIDs().then(() => {
       this.playTrack(this.currentTrackIndex);
-    })
+    });
 
     this.bindUIControls();
   }
 
   bindUIControls() {
+    let controls = document.querySelector('.controls');
+    console.log(controls);
 
-    document.getElementById('play').addEventListener('click', (event) => {
+    let play = document.getElementById('play');
+    let pause = document.getElementById('pause');
+    let forward = document.getElementById('forward');
+    let backward = document.getElementById('backward');
+
+    play.addEventListener('click', (event) => {
       event.preventDefault();
+      if (this.busy) return;
       this.playStatusChangeListener(true);
-      document.getElementById('play').style.display = 'none';
-      document.getElementById('pause').style.display = 'inline-block';
+      play.style.display = 'none';
+      pause.style.display = 'inline-block';
       this.playTrack(this.currentTrackIndex);
     });
 
-    document.getElementById('pause').addEventListener('click', (event) => {
+    pause.addEventListener('click', (event) => {
       event.preventDefault();
+      if (this.busy) return;
       this.playStatusChangeListener(false);
-      document.getElementById('pause').style.display = 'none';
-      document.getElementById('play').style.display = 'inline-block';
+      pause.style.display = 'none';
+      play.style.display = 'inline-block';
       this.pauseTrack();
     });
 
-    document.getElementById('forward').addEventListener('click', (event) => {
+    forward.addEventListener('click', (event) => {
       event.preventDefault();
+      if (this.busy) return;
+      DOMUtils.addClass(controls, 'busy');
+      this.busy = true;
       this.skipForward();
-    })
+    });
 
-    document.getElementById('backward').addEventListener('click', (event) => {
+    backward.addEventListener('click', (event) => {
       event.preventDefault();
+      if (this.busy) return;
+      DOMUtils.addClass(controls,  'busy');
+      this.busy = true;
       this.skipBackward();
-    })
+    });
   }
 
   // TODO: Handle case of URL being a track
@@ -75,7 +92,7 @@ export default class SCPlayer {
         }
         reject();
       });
-    })
+    });
   }
 
   playTrack(trackIndex) {
@@ -89,7 +106,7 @@ export default class SCPlayer {
     }
     else if (this.players[trackIndex])
     {
-      this.players[trackIndex].seek(0)
+      this.players[trackIndex].seek(0);
       this.players[trackIndex].play();
       // this.trackChangeListener(trackIndex);
     }
@@ -111,11 +128,13 @@ export default class SCPlayer {
           this.playStatusChangeListener(true);
           document.getElementById('play').style.display = 'none';
           document.getElementById('pause').style.display = 'inline-block';
-        })
+          DOMUtils.removeClass(document.querySelector('.controls'), 'busy');
+          this.busy = false;
+        });
 
         this.players[trackIndex].on('finish', (event) => {
           this.skipForward();
-        })
+        });
 
         this.players[trackIndex].play();
       });
