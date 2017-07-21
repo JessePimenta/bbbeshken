@@ -61023,6 +61023,10 @@ var _soundcloud = require('soundcloud');
 
 var _soundcloud2 = _interopRequireDefault(_soundcloud);
 
+var _DOMUtils = require('./DOMUtils');
+
+var _DOMUtils2 = _interopRequireDefault(_DOMUtils);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -61040,6 +61044,7 @@ var SCPlayer = function () {
     this.currentTrackIndex = 0;
     this.albumUrl = albumUrl;
     this.secret = secret || "";
+    this.busy = false;
   }
 
   _createClass(SCPlayer, [{
@@ -61062,29 +61067,45 @@ var SCPlayer = function () {
     value: function bindUIControls() {
       var _this2 = this;
 
-      document.getElementById('play').addEventListener('click', function (event) {
+      var controls = document.querySelector('.controls');
+      console.log(controls);
+
+      var play = document.getElementById('play');
+      var pause = document.getElementById('pause');
+      var forward = document.getElementById('forward');
+      var backward = document.getElementById('backward');
+
+      play.addEventListener('click', function (event) {
         event.preventDefault();
+        if (_this2.busy) return;
         _this2.playStatusChangeListener(true);
-        document.getElementById('play').style.display = 'none';
-        document.getElementById('pause').style.display = 'inline-block';
+        play.style.display = 'none';
+        pause.style.display = 'inline-block';
         _this2.playTrack(_this2.currentTrackIndex);
       });
 
-      document.getElementById('pause').addEventListener('click', function (event) {
+      pause.addEventListener('click', function (event) {
         event.preventDefault();
+        if (_this2.busy) return;
         _this2.playStatusChangeListener(false);
-        document.getElementById('pause').style.display = 'none';
-        document.getElementById('play').style.display = 'inline-block';
+        pause.style.display = 'none';
+        play.style.display = 'inline-block';
         _this2.pauseTrack();
       });
 
-      document.getElementById('forward').addEventListener('click', function (event) {
+      forward.addEventListener('click', function (event) {
         event.preventDefault();
+        if (_this2.busy) return;
+        _DOMUtils2.default.addClass(controls, 'busy');
+        _this2.busy = true;
         _this2.skipForward();
       });
 
-      document.getElementById('backward').addEventListener('click', function (event) {
+      backward.addEventListener('click', function (event) {
         event.preventDefault();
+        if (_this2.busy) return;
+        _DOMUtils2.default.addClass(controls, 'busy');
+        _this2.busy = true;
         _this2.skipBackward();
       });
     }
@@ -61163,6 +61184,8 @@ var SCPlayer = function () {
             _this4.playStatusChangeListener(true);
             document.getElementById('play').style.display = 'none';
             document.getElementById('pause').style.display = 'inline-block';
+            _DOMUtils2.default.removeClass(document.querySelector('.controls'), 'busy');
+            _this4.busy = false;
           });
 
           _this4.players[trackIndex].on('finish', function (event) {
@@ -61198,7 +61221,7 @@ var SCPlayer = function () {
 
 exports.default = SCPlayer;
 
-},{"soundcloud":6}],12:[function(require,module,exports){
+},{"./DOMUtils":9,"soundcloud":6}],12:[function(require,module,exports){
 'use strict';
 
 var _domready = require('domready');
