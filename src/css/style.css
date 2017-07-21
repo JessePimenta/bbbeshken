@@ -98,8 +98,8 @@ canvas {
 }
 
 .player-controls-container .player-controls span {
-  font-family: Helvetica, arial, sans-serif;
-  color: #989998;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, arial, sans-serif;
+  color: #000; /*#989998;*/
 }
 
 .player-controls-container.expanded .player-controls > div {
@@ -141,7 +141,7 @@ canvas {
 .divider {
   width: 100%;
   height: 2px;
-  background-color: #989998;
+  background-color: #000;
   margin: 1em 0;
 }
 
@@ -178,7 +178,7 @@ canvas {
 .controls i {
   transition: all 0.2s;
   font-size: 1.5em;
-  color: #989998;
+  color: #000;
 }
 
 .controls i:hover {
@@ -208,7 +208,7 @@ canvas {
 }
 
 .close-x {
-  stroke: #989998;
+  stroke: #000;
   fill: transparent;
   stroke-width: 2;
 }
