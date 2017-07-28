@@ -49,7 +49,17 @@ function addListeners() {
 
   document.getElementById('player-controls').onclick = showPlayerControls;
   document.getElementById('close').onclick = hidePlayerControls;
+  document.getElementById('info').onclick = flipToInfo;
+  document.getElementById('unflip').onclick = flipToControls;
   document.querySelector('.player-controls-container').onmousedown = preventClickThroughControls;
+}
+
+function flipToInfo(event) {
+  DOMUtils.addClass(document.querySelector('.player-controls'), 'flip');
+}
+
+function flipToControls(event) {
+  DOMUtils.removeClass(document.querySelector('.player-controls'), 'flip');
 }
 
 function onMouseMove(event) {
@@ -140,10 +150,4 @@ function setTrackTitle(title) {
 
 domready(function () {
   setup();
-  // scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
-  //                          updateImageTextureForTrack,
-  //                          onPlayStatusChanged,
-  //                          'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
-  //                          's-KqrgS');
-  // scPlayer.init();
 })
