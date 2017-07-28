@@ -2,17 +2,23 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>BenBenBen</title>
+  <title>For Time Is The Longest Distance Between Two People</title>
   <link rel="stylesheet" href="src/css/style.css">
   <link rel="stylesheet" href="src/vendor/font-awesome/css/font-awesome.min.css">
   <script>try{Typekit.load({ async: true });}catch(e){}</script>
 </head>
-  <body>
-    <div id="album-container">
-      <div class="album-cover"></div>
-    </div>
-    <div class="player-controls-container expanded not-started">
-      <div id="player-controls" class="player-controls clearfix">
+<body>
+  <div id="album-container">
+    <div class="album-cover"></div>
+  </div>
+  <div class="player-controls-container expanded not-started">
+    <div id="player-controls" class="player-controls clearfix">
+      <div class="front">
+        <div class="info">
+          <div id="info">
+            <div class="info-icon"><span>i</span></div>
+          </div>
+        </div>
         <div>
           <div class="row artist-album">
             <div class="artist">
@@ -49,7 +55,23 @@
           </div>
         </div>
       </div>
+      <div class="back">
+        <div class="unflip">
+          <div id="unflip">
+            <div class="back-icon"><i class="fa fa-long-arrow-left" aria-hidden="true"></i></div>
+          </div>
+        </div>
+        <div class="instructions">
+          <p>Controls:</p>
+          <p>Position the mouse horizontally to control the speed and direction of the rotation.</span>
+          <p>Click and hold to unwarp the image.</p>
+          <p class="authors">
+            Site by <a href="mailto:yoshiwara.b@gmail.com?Subject=Beshken%20Site">Ben</a> & <a target="_blank" href="http://lynzn.be">Ben</a>
+          </p>
+        </div>
+      </div>
     </div>
-    <script type="text/javascript" src="index.js"></script>
-  </body>
+  </div>
+  <script type="text/javascript" src="index.js"></script>
+</body>
 </html>

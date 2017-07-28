@@ -47,6 +47,7 @@ canvas {
   top: 0;
   left: 0;
   z-index: 100;
+  perspective: 1000px;
 
   background-color: rgba(0, 0, 0, 0);
   transition: background-color 1s ease;
@@ -60,10 +61,7 @@ canvas {
   width: 2em;
   height: 2em;
   box-sizing: border-box;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transform-style: preserve-3d;
 
   position: absolute;
   bottom: 2em;
@@ -85,12 +83,54 @@ canvas {
   transition-delay: 0s;
 }
 
-.player-controls-container .player-controls > div {
+.player-controls-container.expanded .player-controls.flip {
+  transform:  translateY(calc(-50vh + 14.5em)) translateX(calc(-50vw + 14.5em)) rotateY(180deg);
+}
+
+.player-controls-container .player-controls .front,
+.player-controls-container .player-controls .back,
+.player-controls-container .player-controls .close,
+.player-controls-container .player-controls .info,
+.player-controls-container .player-controls .unflip {
   width: 100%;
   visibility: hidden;
   opacity: 0;
 
   transition: all 0.3s;
+}
+
+.player-controls-container.expanded .player-controls .front,
+.player-controls-container.expanded .player-controls .back,
+.player-controls-container.expanded .player-controls .close,
+.player-controls-container.expanded .player-controls .info,
+.player-controls-container.expanded .player-controls .unflip  {
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.3s 0.3s;
+}
+
+.front {
+  z-index: 2;
+}
+
+.back {
+  transform: rotateY(-180deg);
+}
+
+.front, .back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+
+  width: 100%;
+  height: 100%;
+  padding: 3.66em;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
 }
 
 .player-controls-container.not-started .player-controls span {
@@ -102,18 +142,17 @@ canvas {
   color: #000; /*#989998;*/
 }
 
-.player-controls-container.expanded .player-controls > div {
-  visibility: visible;
-  opacity: 1;
-  transition: all 0.3s 0.3s;
-}
-
 .player-controls .close i {
   font-size: 1.5em;
 }
 
 .not-started .close .start {
   display: block;
+  color: #000;
+}
+
+.not-started .info, .not-started .unflip {
+  display: none;
 }
 
 .not-started .player-controls {
@@ -190,6 +229,13 @@ canvas {
   color: rgba(0, 0, 0, 0.2);
 }
 
+.info, .unflip {
+  position: absolute;
+  top: 2em;
+  left: 0;
+  text-align: center;
+}
+
 .close {
   position: absolute;
   bottom: 2em;
@@ -197,10 +243,45 @@ canvas {
   text-align: center;
 }
 
-.close > div {
+.not-started .close > div{
+  border: none;
+}
+
+.close > div, .info > div, .unflip > div {
   display: inline-block;
-  width: 2em;
-  height: 2em;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  vertical-align: middle;
+  border-radius: 1.5em;
+  border: 1px solid rgba(0,0,0,0.5);
+  color: rgba(0,0,0,0.5);
+  backface-visibility: hidden;
+  cursor: pointer;
+}
+
+.unflip i {
+  color: #000;
+}
+
+.back p {
+  color: #000;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, arial, sans-serif;
+  text-align: center;
+}
+
+.back p:first-child {
+  font-weight: bold;
+}
+
+.back p.authors {
+  margin-top: 2rem;
+}
+
+.back p.authors a {
+  color: #000;
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 .close > svg {
