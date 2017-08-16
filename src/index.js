@@ -37,8 +37,7 @@ function setup() {
   scPlayer = new SCPlayer('83f4f6ade6ed22a7213d4441feea15f6',
                            updateImageTextureForTrack,
                            onPlayStatusChanged,
-                           'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS',
-                           's-KqrgS');
+                           'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest');
 }
 
 function addListeners() {
