@@ -61039,7 +61039,7 @@ var SCPlayer = function () {
     this.trackChangeListener = trackChangeListener;
     this.playStatusChangeListener = playStatusChangeListener;
     this.trackIDs = [];
-    this.trackList = ['The Roman Call', 'Lightning By The Sea (extended)', 'Fantom Pain (I)', 'Nina', 'Force Of Evil', 'Purlieu (II)'];
+    this.trackList = ['The Roman Call', 'Lightning By The Sea (Extended)', 'Fantom Pain (I)', 'Nina', 'Force Of Evil', 'Purlieu (II)'];
     this.players = [];
     this.currentTrackIndex = 0;
     this.albumUrl = albumUrl;
@@ -61068,7 +61068,6 @@ var SCPlayer = function () {
       var _this2 = this;
 
       var controls = document.querySelector('.controls');
-      console.log(controls);
 
       var play = document.getElementById('play');
       var pause = document.getElementById('pause');
@@ -61266,7 +61265,7 @@ function setup() {
   albumVisual.setupBuffers();
   albumVisual.update();
 
-  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, onPlayStatusChanged, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest-distance-between-two-places/s-KqrgS', 's-KqrgS');
+  scPlayer = new _SCPlayer2.default('83f4f6ade6ed22a7213d4441feea15f6', updateImageTextureForTrack, onPlayStatusChanged, 'https://soundcloud.com/beshkenmusic/sets/for-time-is-the-longest');
 }
 
 function addListeners() {
