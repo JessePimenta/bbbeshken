@@ -10,7 +10,7 @@ export default class SCPlayer {
     this.trackIDs = [];
     this.trackList = [
       'The Roman Call',
-      'Lightning By The Sea (extended)',
+      'Lightning By The Sea (Extended)',
       'Fantom Pain (I)',
       'Nina',
       'Force Of Evil',
@@ -37,7 +37,6 @@ export default class SCPlayer {
 
   bindUIControls() {
     let controls = document.querySelector('.controls');
-    console.log(controls);
 
     let play = document.getElementById('play');
     let pause = document.getElementById('pause');
