@@ -134,6 +134,7 @@ canvas {
 
 .back {
   transform: rotateY(-180deg);
+  display: block !important;
 }
 
 .front, .back {
@@ -335,4 +336,60 @@ canvas {
   to {
     background-color: rgba(0, 0, 0, 0.4);
   }
+}
+
+.social {
+  display: block;
+  margin-top:30px;
+}
+
+.social ul {
+  list-style: none;
+  margin-left:25px;
+}
+
+.social ul li {
+  float:left;
+  margin-left:15px;
+}
+
+.social ul li a {
+  display: block;
+  text-decoration: none;
+  color:black;
+
+}
+
+.social ul li a:visited {
+  color: black;
+}
+
+.social ul li a i {
+}
+
+.merch {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, arial, sans-serif;
+  display: block;
+  text-align: center;
+  color: black;
+  margin-top:10px;
+}
+
+.merch a {
+  text-decoration: underline;
+  font-weight: bold;
+
+  color:black;
+}
+
+.dl_album {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, arial, sans-serif;
+  display: block;
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.dl_album:hover{
+  text-decoration: underline;
 }
