@@ -60644,6 +60644,10 @@ var AlbumVisual = function () {
       this.frame = 0;
       this.started = false;
       this.paused = false;
+
+      // document.addEventListener("keydown", (event) => {
+      //   if (event.which === 32) this.saveAsImage();
+      // });
     }
 
     /**
@@ -60787,6 +60791,37 @@ var AlbumVisual = function () {
         }
       }
     }
+
+    // saveAsImage() {
+    //   var imgData, imgNode;
+    //   var strDownloadMime = "image/octet-stream";
+    //
+    //   try {
+    //     var strMime = "image/jpeg";
+    //     imgData = this.renderer.domElement.toDataURL(strMime);
+    //
+    //     this.saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
+    //
+    //   } catch (e) {
+    //     console.log(e);
+    //     return;
+    //   }
+    //
+    // }
+    //
+    // saveFile(strData, filename) {
+    //   var link = document.createElement('a');
+    //   if (typeof link.download === 'string') {
+    //     document.body.appendChild(link); //Firefox requires the link to be in the body
+    //     link.download = filename;
+    //     link.href = strData;
+    //     link.click();
+    //     document.body.removeChild(link); //remove the link when done
+    //   } else {
+    //     location.replace(uri);
+    //   }
+    // }
+
   }, {
     key: 'update',
     value: function update() {
@@ -61254,6 +61289,8 @@ var started = false;
 var paused = false;
 
 function setup() {
+  _DOMUtils2.default.addClass(document.querySelector('.player-controls-container'), 'fadein');
+
   container = document.getElementById('album-container');
   renderSize = new _three.Vector2(container.clientWidth, container.clientHeight);
   addListeners();
@@ -61339,8 +61376,11 @@ function hidePlayerControls(event) {
     started = true;
     scPlayer.init();
     _DOMUtils2.default.addClass(albumCover, 'hidden');
+    _DOMUtils2.default.removeClass(playerContainer, 'fadein');
     setTimeout(function () {
+      console.log('hello');
       _DOMUtils2.default.removeClass(playerContainer, 'not-started');
+      _DOMUtils2.default.removeClass(playerContainer, 'closing');
     }, 500);
   }
 
