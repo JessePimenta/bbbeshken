@@ -15,6 +15,8 @@ let started = false;
 let paused = false;
 
 function setup() {
+  DOMUtils.addClass(document.querySelector('.player-controls-container'), 'fadein');
+
   container = document.getElementById('album-container');
   renderSize = new Vector2(container.clientWidth, container.clientHeight);
   addListeners();
@@ -112,8 +114,11 @@ function hidePlayerControls(event) {
     started = true;
     scPlayer.init();
     DOMUtils.addClass(albumCover, 'hidden');
+    DOMUtils.removeClass(playerContainer, 'fadein');
     setTimeout(function() {
+      console.log('hello');
       DOMUtils.removeClass(playerContainer, 'not-started');
+      DOMUtils.removeClass(playerContainer, 'closing');
     }, 500);
   }
 

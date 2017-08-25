@@ -43,6 +43,11 @@ export default class AlbumVisual {
     this.frame = 0;
     this.started = false;
     this.paused = false;
+
+
+    // document.addEventListener("keydown", (event) => {
+    //   if (event.which === 32) this.saveAsImage();
+    // });
   }
 
   /**
@@ -148,6 +153,36 @@ export default class AlbumVisual {
       });
     }
   }
+
+  // saveAsImage() {
+  //   var imgData, imgNode;
+  //   var strDownloadMime = "image/octet-stream";
+  //
+  //   try {
+  //     var strMime = "image/jpeg";
+  //     imgData = this.renderer.domElement.toDataURL(strMime);
+  //
+  //     this.saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
+  //
+  //   } catch (e) {
+  //     console.log(e);
+  //     return;
+  //   }
+  //
+  // }
+  //
+  // saveFile(strData, filename) {
+  //   var link = document.createElement('a');
+  //   if (typeof link.download === 'string') {
+  //     document.body.appendChild(link); //Firefox requires the link to be in the body
+  //     link.download = filename;
+  //     link.href = strData;
+  //     link.click();
+  //     document.body.removeChild(link); //remove the link when done
+  //   } else {
+  //     location.replace(uri);
+  //   }
+  // }
 
   update () {
     // Schedule the next frame.
