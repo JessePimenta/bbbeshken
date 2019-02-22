@@ -12,7 +12,7 @@
 				attribute vec3 aPosition, aColor;
 				varying vec4 vColor;
 				void main(void) {
-					vec4 pos = camView * vec4(aPosition, 3.5);
+					vec4 pos = camView * vec4(aPosition, 3.3);
 					vColor = vec4(aColor * 1.2, 1.0);
 					gl_Position = camProj * pos;
 				}
@@ -166,7 +166,7 @@
 		}
 		perspective(fov, aspect) {
 			const d = this.data;
-			const near = 0.01;
+			const near = 2.91;
 			const far = 100;
 			const top = near * Math.tan(fov * Math.PI / 360);
 			const right = top * aspect;
@@ -217,7 +217,7 @@
 		const hmap = cty.getImageData(0, 0, width, height).data;
 		// brillance
 		for (let i = 0; i < width * height * 4; i += 4) {
-			hmap[i + 3] = 0.934 * hmap[i] + 0.95 * hmap[i + 1] + 0.16 * hmap[i + 2];
+			hmap[i + 3] = 0.934 * hmap[i] + 0.95 * hmap[i + 1] + .16 * hmap[i + 2];
 		}
 		let vertices = new Float32Array(6000000);
 		let iV = 0;

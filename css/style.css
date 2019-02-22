@@ -1,4 +1,10 @@
+@font-face {
+	font-family: 'dundalk'
+	src:url('../css/Dundalk.woff');
+}
+
 body, html {
+	font-family: 'dundalk'
 	touch-action: none;
 	content-zooming: none;
 	position: absolute;
@@ -10,6 +16,7 @@ body, html {
 	background: black;
 }
 
+
 canvas {
 	position: absolute;
 	display: block;
@@ -19,10 +26,24 @@ canvas {
 	cursor: crosshair;
 }
 
-/* @media (max-width:475px) {
-	canvas {
-		transform: scale(.6)
+a {
+			font-family: 'dundalk';
+	    position: absolute;
+	    text-transform: uppercase;
+	    bottom: 0;
+	    left: 48%;
+			text-align: center;
+	    color: white;
+	    font-size: 22px;
+	    text-decoration: none;
+	    padding-bottom: 10px;
+	    z-index: 2;
+}
+
+@media (max-width:475px) {
+	a {
+		left: 43%;
 	}
-} */
+}
 
 img {visibility: hidden;}
