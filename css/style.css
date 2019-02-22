@@ -16,6 +16,10 @@ body, html {
 	background: black;
 }
 
+#hidden-link {
+	opacity: 0;
+}
+
 
 canvas {
 	position: absolute;

@@ -357,6 +357,7 @@
 			.rotateZ(rx)
 			.rotateX(ry)
 			.load();
+
 		gl.drawArrays(gl.TRIANGLES, 0, numElements);
 	};
 	let numElements = 0;
@@ -366,3 +367,11 @@
 	};
 	requestAnimationFrame(start);
 }
+
+document.addEventListener("DOMContentLoaded", ready);
+function ready() {
+
+	let hiddenLink = document.getElementById('hidden-link');
+	hiddenLink.style.opacity = 1;
+	 // image is not yet loaded (unless was cached), so the size is 0x0
+ }
