@@ -52,12 +52,6 @@
 				camera.proj.perspective(120, this.width / this.height).load();
 				gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 }
-		// resize() {
-		// 	this.width = this.elem.width = this.elem.offsetWidth;
-		// 	this.height = this.elem.height = this.elem.offsetHeight;
-		// 	camera.proj.perspective(120, this.width / this.height).load();
-		// 	gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-		// }
 	};
 	////////////////////////////////////////////////////////////////
 	const Mat4 = class {
