@@ -4,7 +4,7 @@
 }
 
 body, html {
-	font-family: 'dundalk'
+	font-family: 'dundalk';
 	touch-action: none;
 	content-zooming: none;
 	position: absolute;
