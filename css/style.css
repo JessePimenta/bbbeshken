@@ -1,10 +1,14 @@
 @font-face {
-	font-family: 'dundalk'
-	src:url('../css/Dundalk.woff');
+    font-family: 'Dundalk';
+    src: url('Dundalk.woff2') format('woff2'),
+        url('Dundalk.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
 
+
 body, html {
-	font-family: 'dundalk';
+	font-family: 'Dundalk';
 	touch-action: none;
 	content-zooming: none;
 	position: absolute;
@@ -31,7 +35,7 @@ canvas {
 }
 
 a {
-			font-family: 'dundalk';
+			font-family: 'Dundalk';
 	    position: absolute;
 	    text-transform: uppercase;
 	    bottom: 0;
