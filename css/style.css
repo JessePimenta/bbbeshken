@@ -1,7 +1,6 @@
 @font-face {
     font-family: 'Dundalk';
-    src: url('Dundalk.woff2') format('woff2'),
-        url('Dundalk.woff') format('woff');
+    src: url('Dundalk.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -21,7 +20,7 @@ body, html {
 }
 
 #hidden-link {
-	opacity: 0;
+	opacity: 1;
 }
 
 
